@@ -1,0 +1,19 @@
+[package]
+name = "octofer-github"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "GitHub API client for Octofer framework"
+
+[dependencies]
+octofer-core = { path = "../octofer-core" }
+octocrab.workspace = true
+jsonwebtoken.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+tokio.workspace = true
+tracing.workspace = true
