@@ -1,5 +1,5 @@
 //! # Octofer Core
-//! 
+//!
 //! Core types, traits, and utilities for the Octofer framework.
 
 use serde::{Deserialize, Serialize};
@@ -56,8 +56,18 @@ impl GitHubPayload {
 
 /// Event handler trait
 pub trait EventHandler: Send + Sync {
-    fn handle(&self, context: Context) -> std::pin::Pin<Box<dyn std::future::Future<Output = anyhow::Result<()>> + Send>>;
+    fn handle(
+        &self,
+        context: Context,
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = anyhow::Result<()>> + Send>>;
 }
 
 /// Event handler function type
-pub type EventHandlerFn = Box<dyn Fn(Context) -> std::pin::Pin<Box<dyn std::future::Future<Output = anyhow::Result<()>> + Send>> + Send + Sync>;
+pub type EventHandlerFn = Box<
+    dyn Fn(
+            Context,
+        )
+            -> std::pin::Pin<Box<dyn std::future::Future<Output = anyhow::Result<()>> + Send>>
+        + Send
+        + Sync,
+>;

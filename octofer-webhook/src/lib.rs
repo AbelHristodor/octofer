@@ -1,9 +1,9 @@
 //! # Octofer Webhook
-//! 
+//!
 //! Webhook handling and event routing for Octofer framework.
 
-use octofer_core::{Context, GitHubPayload, EventHandlerFn};
 use anyhow::Result;
+use octofer_core::{Context, EventHandlerFn, GitHubPayload};
 use std::collections::HashMap;
 
 /// Webhook server for handling GitHub events
@@ -28,14 +28,9 @@ impl WebhookServer {
         Fut: std::future::Future<Output = Result<()>> + Send + 'static,
     {
         let event = event.into();
-        let boxed_handler: EventHandlerFn = Box::new(move |context| {
-            Box::pin(handler(context))
-        });
+        let boxed_handler: EventHandlerFn = Box::new(move |context| Box::pin(handler(context)));
 
-        self.handlers
-            .entry(event)
-            .or_insert_with(Vec::new)
-            .push(boxed_handler);
+        self.handlers.entry(event).or_default().push(boxed_handler);
     }
 
     /// Start the webhook server
