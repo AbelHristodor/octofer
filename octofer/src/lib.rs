@@ -1,12 +1,12 @@
 //! # Octofer
-//! 
+//!
 //! A framework for building GitHub Apps in Rust, inspired by Probot.
-//! 
+//!
 //! ## Quick Start
-//! 
+//!
 //! ```rust
 //! use octofer::Octofer;
-//! 
+//!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     let app = Octofer::new("my-github-app").await?;
@@ -25,8 +25,8 @@ pub use octofer_core::*;
 pub use octofer_github::*;
 pub use octofer_webhook::*;
 
-use std::sync::Arc;
 use anyhow::Result;
+use std::sync::Arc;
 
 /// Main Octofer application struct
 pub struct Octofer {

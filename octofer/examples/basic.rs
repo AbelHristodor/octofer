@@ -1,9 +1,9 @@
 //! # Basic Octofer Example
-//! 
+//!
 //! This example shows how to create a simple GitHub App using Octofer.
 
-use octofer::Octofer;
 use anyhow::Result;
+use octofer::Octofer;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -14,7 +14,7 @@ async fn main() -> Result<()> {
     let app = Octofer::new("example-github-app").await?;
 
     // The app framework will be extended to support event handlers like:
-    // 
+    //
     // app.on_issues(|context| async move {
     //     println!("Issue event received: {:?}", context.payload());
     //     Ok(())
@@ -27,6 +27,6 @@ async fn main() -> Result<()> {
 
     // Start the application
     app.start().await?;
-    
+
     Ok(())
 }

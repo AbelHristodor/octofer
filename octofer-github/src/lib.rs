@@ -1,5 +1,5 @@
 //! # Octofer GitHub
-//! 
+//!
 //! GitHub API client and authentication for Octofer framework using octocrab.
 
 use anyhow::Result;
@@ -24,20 +24,15 @@ impl GitHubClient {
         let octocrab = OctocrabBuilder::new()
             .personal_token(token.into())
             .build()?;
-        
+
         Ok(Self { octocrab })
     }
 
     /// Create a new GitHub client for GitHub App authentication
-    pub fn with_app_credentials(
-        app_id: u64,
-        private_key: impl Into<String>,
-    ) -> Result<Self> {
+    pub fn with_app_credentials(app_id: u64, private_key: impl Into<String>) -> Result<Self> {
         let key = jsonwebtoken::EncodingKey::from_rsa_pem(private_key.into().as_bytes())?;
-        let octocrab = OctocrabBuilder::new()
-            .app(app_id.into(), key)
-            .build()?;
-        
+        let octocrab = OctocrabBuilder::new().app(app_id.into(), key).build()?;
+
         Ok(Self { octocrab })
     }
 
@@ -50,7 +45,11 @@ impl GitHubClient {
     /// Get repository issues
     pub async fn get_issues(&self, owner: &str, repo: &str) -> Result<Vec<Issue>> {
         let issues = self.octocrab.issues(owner, repo).list().send().await?;
-        Ok(issues.items.into_iter().map(Issue::from_octocrab_issue).collect())
+        Ok(issues
+            .items
+            .into_iter()
+            .map(Issue::from_octocrab_issue)
+            .collect())
     }
 
     /// Get a specific issue
@@ -78,7 +77,11 @@ impl GitHubClient {
     /// Get pull requests
     pub async fn get_pull_requests(&self, owner: &str, repo: &str) -> Result<Vec<PullRequest>> {
         let pulls = self.octocrab.pulls(owner, repo).list().send().await?;
-        Ok(pulls.items.into_iter().map(PullRequest::from_octocrab_pull).collect())
+        Ok(pulls
+            .items
+            .into_iter()
+            .map(PullRequest::from_octocrab_pull)
+            .collect())
     }
 
     /// Get a specific pull request

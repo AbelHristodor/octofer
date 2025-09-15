@@ -1,9 +1,9 @@
 //! # Octofer CLI
-//! 
+//!
 //! Command-line interface for creating and managing Octofer applications.
 
-use clap::{Parser, Subcommand};
 use anyhow::Result;
+use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "octofer")]
