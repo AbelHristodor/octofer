@@ -1,0 +1,19 @@
+[package]
+name = "octofer-cli"
+version = "0.1.0"
+edition = "2021"
+authors = ["Abel Hristodor <abel@hristodor.dev>"]
+license = "MIT"
+repository = "https://github.com/AbelHristodor/octofer"
+description = "CLI tools for scaffolding Octofer GitHub Apps"
+
+[[bin]]
+name = "octofer"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.0", features = ["derive"] }
+anyhow = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
