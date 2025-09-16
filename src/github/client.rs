@@ -14,6 +14,7 @@ use tracing::{debug, info};
 use url::Url;
 
 /// Cached installation client with token expiration tracking
+#[derive(Debug)]
 struct CachedInstallationClient {
     client: Octocrab,
     token: InstallationToken,
@@ -37,6 +38,7 @@ impl CachedInstallationClient {
 }
 
 /// GitHub API client with automatic authentication and token management
+#[derive(Debug)]
 pub struct GitHubClient {
     /// Main app client for app-level operations
     app_client: Octocrab,
