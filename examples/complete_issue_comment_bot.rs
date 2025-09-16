@@ -55,6 +55,7 @@ async fn main() -> Result<()> {
                 if body.to_lowercase().contains("hello") {
                     info!("👋 Hello command detected!");
 
+
                     // ✅ FIXED: GitHub client now works properly in event handlers!
                     // The previous trait implementation error has been resolved.
                     // You can now use context.installation_client() without Sync issues.
