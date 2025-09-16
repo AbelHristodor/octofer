@@ -15,6 +15,7 @@ pub async fn handle_webhook(State(state): State<AppState>, req: Request) -> Resu
     let github_event_context = match req.github_event() {
         Some(g) => g,
         None => {
+            error!("Request does not contain GitHub event information!");
             return Ok(axum::http::StatusCode::BAD_REQUEST.into_response());
         }
     };
