@@ -20,11 +20,13 @@ use super::handlers;
 const DEFAULT_HOST: Ipv4Addr = Ipv4Addr::LOCALHOST;
 const DEFAULT_PORT: u16 = 8000;
 
+pub type WebhookEventKind = String;
+
 /// Application state shared across handlers
 #[derive(Clone, Default)]
 pub struct AppState {
     /// Event handlers mapped by event type
-    pub handlers: Arc<RwLock<HashMap<String, Vec<EventHandlerFn>>>>,
+    pub handlers: Arc<RwLock<HashMap<WebhookEventKind, Vec<EventHandlerFn>>>>,
     /// GitHub client for API operations
     pub github_client: Option<Arc<GitHubClient>>,
 }

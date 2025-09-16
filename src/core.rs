@@ -3,16 +3,16 @@
 //! This module contains the fundamental types and traits used throughout the framework,
 //! including the Context type and event handler definitions.
 
-use crate::github::GitHubClient;
+use octocrab::models::webhook_events::WebhookEvent;
+
+use crate::{github::GitHubClient, webhook::WebhookEventKind};
 use std::sync::Arc;
 
 /// Context passed to event handlers containing event information and utilities
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Context {
     /// Event payload data
-    pub payload: serde_json::Value,
-    /// Event type (e.g., "issues", "issue_comment")
-    pub event_type: String,
+    pub event: Option<WebhookEvent>,
     /// Installation ID for GitHub App authentication
     pub installation_id: Option<u64>,
     /// GitHub client for API operations (if available)
@@ -21,14 +21,9 @@ pub struct Context {
 
 impl Context {
     /// Create a new context
-    pub fn new(
-        payload: serde_json::Value,
-        event_type: String,
-        installation_id: Option<u64>,
-    ) -> Self {
+    pub fn new(event: Option<WebhookEvent>, installation_id: Option<u64>) -> Self {
         Self {
-            payload,
-            event_type,
+            event,
             installation_id,
             github_client: None,
         }
@@ -36,27 +31,27 @@ impl Context {
 
     /// Create a new context with GitHub client
     pub fn with_github_client(
-        payload: serde_json::Value,
-        event_type: String,
+        event: Option<WebhookEvent>,
         installation_id: Option<u64>,
         github_client: Option<Arc<GitHubClient>>,
     ) -> Self {
         Self {
-            payload,
-            event_type,
+            event,
             installation_id,
             github_client,
         }
     }
 
-    /// Get the event payload
-    pub fn payload(&self) -> &serde_json::Value {
-        &self.payload
+    pub fn kind(&self) -> WebhookEventKind {
+        match &self.event {
+            Some(e) => serde_json::to_value(e.kind.clone()).unwrap().to_string(),
+            None => "Undefined".to_string(),
+        }
     }
 
-    /// Get the event type
-    pub fn event_type(&self) -> &str {
-        &self.event_type
+    /// Get the event payload
+    pub fn event(&self) -> &Option<WebhookEvent> {
+        &self.event
     }
 
     /// Get the installation ID
@@ -65,7 +60,7 @@ impl Context {
     }
 
     /// Get access to the GitHub client
-    /// 
+    ///
     /// Returns a reference to the GitHub client if available. The client is already
     /// authenticated and can be used to make API calls. If an installation ID is
     /// available in the context, the client will automatically use the appropriate
@@ -75,7 +70,7 @@ impl Context {
     }
 
     /// Get an authenticated installation client for the current installation
-    /// 
+    ///
     /// This is a convenience method that returns an Octocrab client authenticated
     /// as the specific installation from this event context. Returns None if no
     /// GitHub client is available or no installation ID is present.
@@ -86,17 +81,6 @@ impl Context {
                 Ok(Some(octocrab_client))
             }
             _ => Ok(None),
-        }
-    }
-}
-
-impl Default for Context {
-    fn default() -> Self {
-        Self {
-            payload: serde_json::Value::Null,
-            event_type: String::new(),
-            installation_id: None,
-            github_client: None,
         }
     }
 }
