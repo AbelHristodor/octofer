@@ -78,7 +78,7 @@ impl Octofer {
     pub async fn on_issue_comment<F, Fut>(&mut self, handler: F) -> &Self
     where
         F: Fn(Context) -> Fut + Send + Sync + 'static,
-        Fut: std::future::Future<Output = Result<()>> + Send + Sync + 'static,
+        Fut: std::future::Future<Output = Result<()>> + Send + 'static,
     {
         self.server.on("issue_comment", handler).await;
         self
@@ -88,7 +88,7 @@ impl Octofer {
     pub async fn on_issues<F, Fut>(&mut self, handler: F) -> &Self
     where
         F: Fn(Context) -> Fut + Send + Sync + 'static,
-        Fut: std::future::Future<Output = Result<()>> + Send + Sync + 'static,
+        Fut: std::future::Future<Output = Result<()>> + Send + 'static,
     {
         self.server.on("issues", handler).await;
         self

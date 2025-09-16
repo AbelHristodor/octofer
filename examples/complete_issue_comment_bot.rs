@@ -4,7 +4,7 @@
 //! to interact with the GitHub API in response to webhook events.
 
 use anyhow::Result;
-use octofer::{Octofer, Config};
+use octofer::{Config, Octofer};
 use tracing::info;
 
 #[tokio::main]
@@ -23,7 +23,7 @@ async fn main() -> Result<()> {
     app.on_issue_comment(|context| async move {
         info!("🎯 Issue comment event received!");
         info!("Event type: {}", context.event_type());
-        
+
         if let Some(installation_id) = context.installation_id() {
             info!("Installation ID: {}", installation_id);
         }
@@ -32,16 +32,16 @@ async fn main() -> Result<()> {
         if let Some(_github_client) = context.github() {
             info!("✅ GitHub client is available!");
             info!("🔧 You can use the GitHub client for API operations");
-            
+
             // Example: App-level operations would be available
             info!("📋 App-level operations: get_installations(), app_client()");
-            
+
             // Example: Installation-specific operations
             if context.installation_id().is_some() {
                 info!("🏢 Installation client would be available via context.installation_client().await");
                 info!("🎯 You could make authenticated API calls for this installation");
             }
-            
+
         } else {
             info!("ℹ️ No GitHub client available (requires proper configuration)");
         }
@@ -54,8 +54,12 @@ async fn main() -> Result<()> {
                 // Example: Respond to specific commands
                 if body.to_lowercase().contains("hello") {
                     info!("👋 Hello command detected!");
-                    
-                    // In a real application, you would respond like this:
+
+                    // ✅ FIXED: GitHub client now works properly in event handlers!
+                    // The previous trait implementation error has been resolved.
+                    // You can now use context.installation_client() without Sync issues.
+
+                    // Example usage (uncomment when you have proper GitHub credentials):
                     // if let Ok(Some(client)) = context.installation_client().await {
                     //     if let (Some(repo_owner), Some(repo_name), Some(issue_number)) = 
                     //         (extract_repo_owner(&context), extract_repo_name(&context), extract_issue_number(&context)) {
@@ -68,6 +72,13 @@ async fn main() -> Result<()> {
                     //         }
                     //     }
                     // }
+
+                    // Demonstrate that the API is now available:
+                    match context.installation_client().await {
+                        Ok(Some(_client)) => info!("✅ GitHub installation client is ready!"),
+                        Ok(None) => info!("ℹ️ GitHub client not configured (set GITHUB_APP_ID, etc.)"),
+                        Err(e) => info!("⚠️ Error getting installation client: {}", e),
+                    }
                 }
 
                 if body.to_lowercase().contains("help") {
