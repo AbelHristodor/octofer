@@ -11,9 +11,15 @@ description = "GitHub API client for Octofer framework"
 octofer-core = { path = "../octofer-core" }
 octocrab.workspace = true
 jsonwebtoken.workspace = true
-reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 anyhow.workspace = true
 tokio.workspace = true
 tracing.workspace = true
+chrono = "0.4.42"
+url = "2.5.7"
+axum = { version = "0.8.4", features = ["tracing"] }
+hmac = "0.12.1"
+sha2 = "0.10.9"
+hex = "0.4.3"
+base64 = "0.22.1"

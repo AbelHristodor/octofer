@@ -9,6 +9,7 @@ description = "Webhook handling for Octofer framework"
 
 [dependencies]
 octofer-core = { path = "../octofer-core" }
+octofer-github = { path = "../octofer-github" }
 tokio.workspace = true
 serde.workspace = true
 serde_json.workspace = true
