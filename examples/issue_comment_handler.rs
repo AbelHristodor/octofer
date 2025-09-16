@@ -3,7 +3,7 @@
 //! This example demonstrates how to handle issue comment events using Octofer.
 
 use anyhow::Result;
-use octofer::{Octofer, Config};
+use octofer::{Config, Octofer};
 use tracing::info;
 
 #[tokio::main]
@@ -29,7 +29,7 @@ async fn main() -> Result<()> {
 
         // Extract information from the event payload
         let payload = context.payload();
-        
+
         if let Some(action) = payload.get("action").and_then(|a| a.as_str()) {
             info!("Action: {}", action);
         }
@@ -52,13 +52,13 @@ async fn main() -> Result<()> {
         if let Some(comment) = payload.get("comment") {
             if let Some(body) = comment.get("body").and_then(|b| b.as_str()) {
                 info!("Comment: {}", body);
-                
+
                 // Example: Respond to bot mentions
                 if body.contains("@bot") {
                     info!("Bot was mentioned! Could respond here.");
                 }
             }
-            
+
             if let Some(user) = comment.get("user") {
                 if let Some(login) = user.get("login").and_then(|l| l.as_str()) {
                     info!("Comment author: {}", login);
@@ -67,7 +67,8 @@ async fn main() -> Result<()> {
         }
 
         Ok(())
-    }).await;
+    })
+    .await;
 
     // Start the application
     info!("Starting issue comment handler...");
