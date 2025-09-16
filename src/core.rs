@@ -54,6 +54,47 @@ impl Context {
         &self.event
     }
 
+    /// Get the event type as a string
+    pub fn event_type(&self) -> &str {
+        match &self.event {
+            Some(e) => {
+                // Convert the event kind to a string representation
+                match &e.kind {
+                    octocrab::models::webhook_events::WebhookEventType::Issues => "issues",
+                    octocrab::models::webhook_events::WebhookEventType::IssueComment => {
+                        "issue_comment"
+                    }
+                    octocrab::models::webhook_events::WebhookEventType::PullRequest => {
+                        "pull_request"
+                    }
+                    octocrab::models::webhook_events::WebhookEventType::Push => "push",
+                    octocrab::models::webhook_events::WebhookEventType::Create => "create",
+                    octocrab::models::webhook_events::WebhookEventType::Delete => "delete",
+                    octocrab::models::webhook_events::WebhookEventType::Fork => "fork",
+                    octocrab::models::webhook_events::WebhookEventType::Star => "star",
+                    octocrab::models::webhook_events::WebhookEventType::Watch => "watch",
+                    octocrab::models::webhook_events::WebhookEventType::Release => "release",
+                    _ => "unknown",
+                }
+            }
+            None => "undefined",
+        }
+    }
+
+    /// Get the event payload as a JSON value
+    ///
+    /// This provides access to the raw webhook payload data as a serde_json::Value,
+    /// allowing handlers to extract specific fields they need.
+    pub fn payload(&self) -> serde_json::Value {
+        match &self.event {
+            Some(event) => {
+                // Convert the WebhookEvent to a JSON value
+                serde_json::to_value(event).unwrap_or(serde_json::Value::Null)
+            }
+            None => serde_json::Value::Null,
+        }
+    }
+
     /// Get the installation ID
     pub fn installation_id(&self) -> Option<u64> {
         self.installation_id

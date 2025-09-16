@@ -100,7 +100,7 @@ impl WebhookServer {
     pub async fn on<F, Fut>(&mut self, event: impl Into<String>, handler: F)
     where
         F: Fn(Context) -> Fut + Send + Sync + 'static,
-        Fut: std::future::Future<Output = Result<()>> + Send + Sync + 'static,
+        Fut: std::future::Future<Output = Result<()>> + Send + 'static,
     {
         let event = event.into();
         let boxed_handler: EventHandlerFn = Box::new(move |context| Box::pin(handler(context)));
