@@ -4,14 +4,33 @@
 
 use anyhow::Result;
 use octofer::Octofer;
+use tracing::info;
+use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    info!("Started example 'basic'");
+
     // Initialize tracing
-    tracing_subscriber::fmt::init();
+    // Setup tracing subscriber
+    tracing_subscriber::fmt()
+        .with_target(false)
+        .with_env_filter(
+            EnvFilter::try_from_default_env()
+                .or_else(|_| EnvFilter::try_new("octofer=info,tower_http=debug"))
+                .unwrap(),
+        )
+        .compact()
+        .init();
 
     // Create a new Octofer app
-    let app = Octofer::new("example-github-app").await?;
+    let mut app = Octofer::new();
+    app.on_issue_comment(|context| async move {
+        println!("I'm in the handler!");
+        println!("Context: {:?}", context);
+        Ok(())
+    })
+    .await;
 
     // The app framework will be extended to support event handlers like:
     //

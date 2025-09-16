@@ -1,73 +1,101 @@
-//! # Octofer Webhook
-//!
-//! Webhook handling and event routing for Octofer framework.
+use std::{collections::HashMap, sync::Arc};
 
-use anyhow::Result;
-use octofer_core::{Context, EventHandlerFn, GitHubPayload};
-use std::collections::HashMap;
+use axum::{
+    routing::{get, post},
+    Router,
+};
+use octofer_core::{Context, EventHandlerFn};
+use tokio::sync::RwLock;
+use tower_http::trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer};
+use tracing::{info, Level};
 
-/// Webhook server for handling GitHub events
-pub struct WebhookServer {
-    handlers: HashMap<String, Vec<EventHandlerFn>>,
-    port: u16,
+mod handlers;
+
+const DEFAULT_PORT: u16 = 8000;
+const DEFAULT_ADDRESS: std::net::Ipv4Addr = std::net::Ipv4Addr::LOCALHOST;
+
+#[derive(Clone, Default)]
+pub struct AppState {
+    handlers: Arc<RwLock<HashMap<String, Vec<EventHandlerFn>>>>,
 }
 
-impl WebhookServer {
-    /// Create a new webhook server
-    pub fn new(port: u16) -> Self {
-        Self {
-            handlers: HashMap::new(),
-            port,
-        }
-    }
-
-    /// Add an event handler
-    pub fn on<F, Fut>(&mut self, event: impl Into<String>, handler: F)
-    where
-        F: Fn(Context) -> Fut + Send + Sync + 'static,
-        Fut: std::future::Future<Output = Result<()>> + Send + 'static,
-    {
-        let event = event.into();
-        let boxed_handler: EventHandlerFn = Box::new(move |context| Box::pin(handler(context)));
-
-        self.handlers.entry(event).or_default().push(boxed_handler);
-    }
-
-    /// Start the webhook server
-    pub async fn start(&self) -> Result<()> {
-        tracing::info!("Starting webhook server on port {}", self.port);
-        // Implementation will use a web framework like axum or warp
-        Ok(())
-    }
-
-    /// Handle an incoming webhook
-    pub async fn handle_webhook(
-        &self,
-        event_name: &str,
-        delivery_id: &str,
-        payload: serde_json::Value,
-    ) -> Result<()> {
-        let payload = GitHubPayload::from_json(payload)?;
-        let context = Context {
-            payload,
-            event_name: event_name.to_string(),
-            delivery_id: delivery_id.to_string(),
-        };
-
-        if let Some(handlers) = self.handlers.get(event_name) {
-            for handler in handlers {
-                if let Err(e) = handler(context.clone()).await {
-                    tracing::error!("Handler error for event {}: {}", event_name, e);
-                }
-            }
-        }
-
-        Ok(())
-    }
+pub struct WebhookServer {
+    state: AppState,
+    pub address: std::net::Ipv4Addr,
+    pub port: u16,
 }
 
 impl Default for WebhookServer {
     fn default() -> Self {
-        Self::new(3000)
+        Self {
+            state: Default::default(),
+            address: DEFAULT_ADDRESS,
+            port: DEFAULT_PORT,
+        }
+    }
+}
+
+impl WebhookServer {
+    pub fn new(address: std::net::Ipv4Addr, port: u16) -> Self {
+        Self {
+            state: AppState {
+                handlers: Arc::new(RwLock::new(HashMap::new())),
+            },
+            address,
+            port,
+        }
+    }
+
+    pub async fn start(&self) -> anyhow::Result<()> {
+        let listener = tokio::net::TcpListener::bind((self.address, self.port)).await?;
+        info!("Server started on {}", listener.local_addr().unwrap());
+
+        axum::serve(listener, self.get_router()).await?;
+        Ok(())
+    }
+
+    pub async fn on<F, Fut>(&mut self, event: impl Into<String>, handler: F)
+    where
+        F: Fn(Context) -> Fut + Send + Sync + 'static,
+        Fut: std::future::Future<Output = anyhow::Result<()>> + Send + Sync + 'static,
+    {
+        let event = event.into();
+        let boxed_handler: EventHandlerFn = Box::new(move |context| Box::pin(handler(context)));
+
+        info!("Event {:?}", event.clone());
+
+        // TODO: fix this to make it more readable
+        // TODO: add error handling
+        Arc::get_mut(&mut self.state.handlers)
+            .unwrap()
+            .write()
+            .await
+            .entry(event)
+            .or_default()
+            .push(boxed_handler);
+    }
+
+    fn get_router(&self) -> Router {
+        let state = self.state.clone();
+        let cors = tower_http::cors::CorsLayer::new()
+            .allow_origin(tower_http::cors::Any)
+            .allow_methods(tower_http::cors::Any)
+            .allow_headers(tower_http::cors::Any);
+
+        Router::new()
+            .route("/health", get(handlers::handle_health))
+            .route("/webhook", post(handlers::handle_webhook))
+            .layer(
+                TraceLayer::new_for_http()
+                    .make_span_with(DefaultMakeSpan::new().include_headers(true))
+                    .on_request(DefaultOnRequest::new().level(Level::INFO))
+                    .on_response(
+                        DefaultOnResponse::new()
+                            .level(Level::INFO)
+                            .latency_unit(tower_http::LatencyUnit::Micros),
+                    ),
+            )
+            .layer(cors)
+            .with_state(state)
     }
 }
