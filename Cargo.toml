@@ -19,13 +19,7 @@ path = "examples/basic.rs"
 name = "github_client"
 path = "examples/github_client.rs"
 
-[[example]]
-name = "issue_comment_handler"
-path = "examples/issue_comment_handler.rs"
 
-[[example]]
-name = "complete_issue_comment_bot"
-path = "examples/complete_issue_comment_bot.rs"
 
 [[example]]
 name = "github_context_demo"
