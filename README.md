@@ -112,6 +112,68 @@ Run tests:
 cargo test
 ```
 
+## Testing
+
+Octofer includes a comprehensive testing framework for unit testing GitHub Apps without requiring real webhook endpoints or GitHub API calls.
+
+### Enable Testing Features
+
+```bash
+# Run tests with testing features
+cargo test --features testing
+
+# Run testing framework example
+cargo run --example testing_framework --features testing
+```
+
+### Quick Testing Example
+
+```rust
+#[cfg(test)]
+mod tests {
+    use octofer::testing::{TestApp, TestContext, assert_api};
+    use anyhow::Result;
+
+    #[tokio::test]
+    async fn test_issue_handler() -> Result<()> {
+        let mut app = TestApp::new();
+        let mock_client = app.mock_client();
+        
+        // Set up mock response
+        mock_client.set_response(
+            "POST:/repos/owner/repo/issues/42/comments",
+            serde_json::json!({ "id": 123, "body": "Thanks!" })
+        );
+        
+        // Register handler
+        app.on_issues(|_context| async move {
+            // Your handler logic here
+            Ok(())
+        }).await;
+        
+        // Test the handler
+        let context = TestContext::with_installation_id(12345);
+        app.handle_context("issues", context).await?;
+        
+        // Verify API calls
+        assert_api(&mock_client)
+            .comment_created("owner/repo", 42)
+            .total_calls(1);
+            
+        Ok(())
+    }
+}
+```
+
+### Testing Framework Features
+
+- 🎯 **TestApp**: Simplified test application for unit testing event handlers
+- 📡 **MockGitHubClient**: Mock GitHub API client with call recording
+- 🔧 **TestContext**: Helpers for creating test contexts with mock data
+- ✅ **Assertions**: Specialized assertion helpers for GitHub App testing
+
+See [TESTING.md](TESTING.md) for comprehensive testing documentation.
+
 Run examples:
 
 ```bash

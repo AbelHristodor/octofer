@@ -23,11 +23,13 @@ path = "examples/basic.rs"
 name = "github_client"
 path = "examples/github_client.rs"
 
-
-
 [[example]]
 name = "github_context_demo"
 path = "examples/github_context_demo.rs"
+
+[[example]]
+name = "testing_framework"
+path = "examples/testing_framework.rs"
 
 [dependencies]
 # Async runtime

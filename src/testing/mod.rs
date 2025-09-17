@@ -37,7 +37,7 @@ pub mod test_context;
 pub mod assertions;
 
 pub use mock_client::MockGitHubClient;
-pub use mock_events::MockWebhookEvent;
+pub use mock_events::{MockWebhookEvent, mock_event_from_json};
 pub use test_app::TestApp;
 pub use test_context::TestContext;
 pub use assertions::*;
