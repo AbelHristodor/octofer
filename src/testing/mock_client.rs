@@ -101,16 +101,10 @@ impl MockGitHubClient {
         if let Some(response) = self.get_response(&key) {
             Ok(response)
         } else {
-            // Default mock response
+            // Default mock response - only essential fields
             Ok(serde_json::json!({
                 "id": 123456789,
-                "body": body,
-                "user": {
-                    "login": "test-bot",
-                    "id": 12345
-                },
-                "created_at": "2023-01-01T00:00:00Z",
-                "updated_at": "2023-01-01T00:00:00Z"
+                "body": body
             }))
         }
     }
@@ -143,16 +137,12 @@ impl MockGitHubClient {
         if let Some(response) = self.get_response(&key) {
             Ok(response)
         } else {
-            // Default mock response
+            // Default mock response - only essential fields
             Ok(serde_json::json!({
                 "number": issue_number,
                 "title": title.unwrap_or("Mock Issue"),
                 "body": body.unwrap_or("Mock body"),
-                "state": state.unwrap_or("open"),
-                "user": {
-                    "login": "test-user",
-                    "id": 67890
-                }
+                "state": state.unwrap_or("open")
             }))
         }
     }
@@ -173,12 +163,10 @@ impl MockGitHubClient {
         if let Some(response) = self.get_response(&key) {
             Ok(response)
         } else {
-            // Default mock response
+            // Default mock response - only essential fields
             let mock_labels: Vec<Value> = labels.iter().map(|label| {
                 serde_json::json!({
-                    "name": label,
-                    "color": "ffffff",
-                    "description": format!("Mock label: {}", label)
+                    "name": label
                 })
             }).collect();
             
@@ -195,17 +183,10 @@ impl MockGitHubClient {
         if let Some(response) = self.get_response(&key) {
             Ok(response)
         } else {
-            // Default mock response
+            // Default mock response - only essential fields
             Ok(serde_json::json!({
                 "name": repo.split('/').last().unwrap_or("unknown"),
-                "full_name": repo,
-                "private": false,
-                "owner": {
-                    "login": repo.split('/').next().unwrap_or("unknown"),
-                    "id": 12345
-                },
-                "description": "Mock repository",
-                "default_branch": "main"
+                "full_name": repo
             }))
         }
     }

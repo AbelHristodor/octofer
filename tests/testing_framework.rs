@@ -36,17 +36,14 @@ mod testing_framework_integration {
             "GET:/repos/test/repo",
             serde_json::json!({
                 "name": "repo",
-                "full_name": "test/repo",
-                "description": "A test repository",
-                "stars": 42
+                "full_name": "test/repo"
             })
         );
 
         let response = client.get_repository("test/repo").await?;
         
         assert_eq!(response["name"], "repo");
-        assert_eq!(response["stars"], 42);
-        assert_eq!(response["description"], "A test repository");
+        assert_eq!(response["full_name"], "test/repo");
 
         Ok(())
     }
@@ -103,15 +100,14 @@ mod testing_framework_integration {
             "POST:/repos/test/repo/issues/42/comments",
             serde_json::json!({
                 "id": 123456789,
-                "body": "Thank you for reporting this issue!",
-                "user": { "login": "my-bot", "id": 12345 }
+                "body": "Thank you for reporting this issue!"
             })
         );
 
         mock_client.set_response(
             "POST:/repos/test/repo/issues/42/labels",
             serde_json::json!([
-                { "name": "needs-triage", "color": "yellow" }
+                { "name": "needs-triage" }
             ])
         );
 

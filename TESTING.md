@@ -102,8 +102,7 @@ client.set_response(
     "POST:/repos/owner/repo/issues/42/comments",
     serde_json::json!({
         "id": 123456,
-        "body": "Test comment",
-        "user": { "login": "test-bot" }
+        "body": "Test comment"
     })
 );
 

@@ -49,8 +49,7 @@ async fn example_mock_github_client() -> Result<()> {
         "GET:/repos/owner/repo",
         serde_json::json!({
             "name": "repo",
-            "full_name": "owner/repo",
-            "description": "A test repository"
+            "full_name": "owner/repo"
         })
     );
     
@@ -80,8 +79,7 @@ async fn example_event_handler_testing() -> Result<()> {
         "POST:/repos/test/repo/issues/42/comments",
         serde_json::json!({
             "id": 123456789,
-            "body": "Hello from bot!",
-            "user": { "login": "test-bot" }
+            "body": "Hello from bot!"
         })
     );
     
