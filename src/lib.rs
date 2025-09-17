@@ -31,11 +31,9 @@ pub mod core;
 pub mod github;
 pub mod webhook;
 
-#[cfg(feature = "testing")]
-pub mod testing;
-
 pub use config::Config;
 pub use core::{Context, EventHandler, EventHandlerFn};
+use std::sync::Arc;
 
 use crate::webhook::WebhookServer;
 use anyhow::Result;
@@ -78,22 +76,13 @@ impl Octofer {
     }
 
     /// Add an issue comment event handler
-    pub async fn on_issue_comment<F, Fut>(&mut self, handler: F) -> &Self
+    pub async fn on_issue_comment<F, Fut, E>(&mut self, handler: F, extra: Arc<E>) -> &Self
     where
-        F: Fn(Context) -> Fut + Send + Sync + 'static,
+        F: Fn(Context, Arc<E>) -> Fut + Send + Sync + 'static,
         Fut: std::future::Future<Output = Result<()>> + Send + 'static,
+        E: Send + Sync + 'static + Clone,
     {
-        self.server.on("issue_comment", handler).await;
-        self
-    }
-
-    /// Add an issues event handler
-    pub async fn on_issues<F, Fut>(&mut self, handler: F) -> &Self
-    where
-        F: Fn(Context) -> Fut + Send + Sync + 'static,
-        Fut: std::future::Future<Output = Result<()>> + Send + 'static,
-    {
-        self.server.on("issues", handler).await;
+        self.server.on("issue_comment", handler, extra).await;
         self
     }
 

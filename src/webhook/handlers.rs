@@ -37,6 +37,7 @@ pub async fn handle_webhook(State(state): State<AppState>, req: Request) -> Resu
                 }
                 Err(e) => {
                     error!("Handler failed with error: {:?}", e);
+                    return Err(axum::http::StatusCode::INTERNAL_SERVER_ERROR.into());
                 }
             }
         }

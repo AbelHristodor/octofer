@@ -55,6 +55,7 @@ impl Context {
     }
 
     /// Get the event type as a string
+    /// TODO: FIx this to use serde serialization
     pub fn event_type(&self) -> &str {
         match &self.event {
             Some(e) => {

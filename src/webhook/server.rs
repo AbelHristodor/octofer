@@ -97,13 +97,17 @@ impl WebhookServer {
     }
 
     /// Register an event handler for a specific event type
-    pub async fn on<F, Fut>(&mut self, event: impl Into<String>, handler: F)
+    pub async fn on<F, Fut, E>(&mut self, event: impl Into<String>, handler: F, extra: Arc<E>)
     where
-        F: Fn(Context) -> Fut + Send + Sync + 'static,
+        F: Fn(Context, Arc<E>) -> Fut + Send + Sync + 'static,
         Fut: std::future::Future<Output = Result<()>> + Send + 'static,
+        E: Send + Sync + 'static + Clone,
     {
         let event = event.into();
-        let boxed_handler: EventHandlerFn = Box::new(move |context| Box::pin(handler(context)));
+        let boxed_handler: EventHandlerFn = Box::new(move |context| {
+            let extra = extra.clone();
+            Box::pin(handler(context, extra))
+        });
 
         self.state
             .handlers
