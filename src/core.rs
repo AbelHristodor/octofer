@@ -55,6 +55,7 @@ impl Context {
     }
 
     /// Get the event type as a string
+    /// TODO: FIx this to use serde serialization
     pub fn event_type(&self) -> &str {
         match &self.event {
             Some(e) => {
@@ -137,10 +138,14 @@ pub type EventHandlerFn = Box<
 >;
 
 /// Trait for types that can handle GitHub events
-pub trait EventHandler: Send + Sync {
+pub trait EventHandler<T>: Send + Sync
+where
+    T: Send + Sync + 'static,
+{
     /// Handle an event with the provided context
     fn handle(
         &self,
         context: Context,
+        extra: Arc<T>,
     ) -> std::pin::Pin<Box<dyn std::future::Future<Output = anyhow::Result<()>> + Send>>;
 }

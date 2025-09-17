@@ -1,5 +1,6 @@
 //! HMAC verification middleware for webhook security
 
+use crate::config::{WEBHOOK_HEADER_NAME, WEBHOOK_SECRET};
 use anyhow::Context;
 use axum::{
     body::Body,
@@ -26,8 +27,8 @@ pub struct HmacConfig {
 impl Default for HmacConfig {
     fn default() -> Self {
         Self {
-            secret: "development-secret".to_string(),
-            header_name: "x-hub-signature-256".to_string(),
+            secret: WEBHOOK_SECRET.to_string(),
+            header_name: WEBHOOK_HEADER_NAME.to_string(),
         }
     }
 }

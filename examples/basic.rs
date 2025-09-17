@@ -2,6 +2,8 @@
 //!
 //! This example shows how to create a simple GitHub App using Octofer.
 
+use std::sync::Arc;
+
 use anyhow::Result;
 use octofer::{Config, Octofer};
 use tracing::info;
@@ -25,28 +27,31 @@ async fn main() -> Result<()> {
         Octofer::new_default()
     });
 
-    app.on_issue_comment(|context| async move {
-        info!("Issue comment event received!");
-        info!("Event type: {}", context.event_type());
-        info!("Installation ID: {:?}", context.installation_id());
+    #[derive(Clone, Debug)]
+    struct Hello {
+        a: String,
+    }
 
-        let client = match context.github_client {
-            Some(c) => c,
-            None => panic!(),
-        };
+    let h = Hello { a: "Hello".into() };
 
-        Ok(())
-    })
+    app.on_issue_comment(
+        |context, e| async move {
+            info!("Issue comment event received!");
+            info!("Event type: {}", context.event_type());
+            info!("Installation ID: {:?}", context.installation_id());
+
+            info!("Extra: {:?}", e.a);
+
+            let client = match context.github_client {
+                Some(c) => c,
+                None => panic!(),
+            };
+
+            Ok(())
+        },
+        Arc::new(h),
+    )
     .await;
-
-    app.on_issues(|context| async move {
-        info!("Issues event received!");
-        info!("Event type: {}", context.event_type());
-        info!("Installation ID: {:?}", context.installation_id());
-        Ok(())
-    })
-    .await;
-
     // Start the application
     app.start().await?;
 
