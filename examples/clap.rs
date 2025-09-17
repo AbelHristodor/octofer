@@ -56,20 +56,12 @@ pub struct ScheduleFreezeArgs {
     pub to: Option<DateTime<Utc>>,
 
     /// Duration to freeze, optional
-    #[arg(long, value_parser = parse_duration)]
+    #[arg(long, value_parser = parse_duration_2)]
     pub duration: Option<Duration>,
 
     /// Reason for freezing, optional
     #[arg(long)]
     pub reason: Option<String>,
-}
-
-// --- Helper parsers ---
-
-fn parse_duration(s: &str) -> Result<Duration, String> {
-    humantime::parse_duration(s)
-        .map(|d| Duration::from_std(d).unwrap())
-        .map_err(|e| e.to_string())
 }
 
 fn parse_datetime(s: &str) -> Result<DateTime<Utc>, String> {

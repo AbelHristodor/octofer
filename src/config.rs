@@ -8,6 +8,30 @@ use base64::Engine;
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::net::Ipv4Addr;
+use tracing::Level;
+
+/// Constants
+const DEFAULT_HOST_ADDR: Ipv4Addr = Ipv4Addr::LOCALHOST;
+const DEFAULT_PORT: u16 = 8000;
+
+const WEBHOOK_SECRET: &str = "octofer-webhook-secret";
+const WEBHOOK_HEADER_NAME: &str = "x-hub-signature-256";
+
+const GH_APP_ID: &str = "GITHUB_APP_ID";
+const GH_PRIVATE_KEY_PATH: &str = "GITHUB_PRIVATE_KEY_PATH";
+const GH_PRIVATE_KEY_BASE64: &str = "GITHUB_PRIVATE_KEY_BASE64";
+const GH_WEBHOOK_SECRET: &str = "GITHUB_WEBHOOK_SECRET";
+const GH_WEBHOOK_HEADER_NAME: &str = "GITHUB_WEBHOOK_HEADER_NAME";
+
+const OCTOFER_HOST: &str = "OCTOFER_HOST";
+const OCTOFER_PORT: &str = "OCTOFER_PORT";
+
+const OCTOFER_LOG_LEVEL: &str = "OCTOFER_LOG_LEVEL";
+const OCTOFER_LOG_FORMAT: &str = "OCTOFER_LOG_FORMAT";
+const OCTOFER_LOG_WITH_TARGET: &str = "OCTOFER_LOG_WITH_TARGET";
+const OCTOFER_LOG_WITH_FILE: &str = "OCTOFER_LOG_WITH_FILE";
+const OCTOFER_LOG_WITH_THREAD_IDS: &str = "OCTOFER_LOG_WITH_THREAD_IDS";
+const LOG_FORMAT: &str = "compact";
 
 /// Main configuration struct containing all necessary configuration for Octofer components
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -47,7 +71,7 @@ impl Config {
             server: ServerConfig { host, port },
             webhook: WebhookConfig {
                 secret: webhook_secret,
-                header_name: "x-hub-signature-256".to_string(),
+                header_name: WEBHOOK_HEADER_NAME.to_string(),
             },
             logging: LoggingConfig::default(),
         })
@@ -71,21 +95,21 @@ pub struct GitHubConfig {
 impl GitHubConfig {
     /// Create GitHub configuration from environment variables
     pub fn from_env() -> Result<Self> {
-        let app_id = env::var("GITHUB_APP_ID")
-            .map_err(|_| anyhow!("GITHUB_APP_ID environment variable is required"))?
+        let app_id = env::var(GH_APP_ID)
+            .map_err(|_| anyhow!("{GH_APP_ID} environment variable is required"))?
             .parse::<u64>()
-            .map_err(|_| anyhow!("GITHUB_APP_ID must be a valid number"))?;
+            .map_err(|_| anyhow!("{GH_APP_ID} must be a valid number"))?;
 
-        let private_key = if let Ok(path) = env::var("GITHUB_PRIVATE_KEY_PATH") {
+        let private_key = if let Ok(path) = env::var(GH_PRIVATE_KEY_PATH) {
             std::fs::read(&path)
                 .map_err(|e| anyhow!("Failed to read private key from {}: {}", path, e))?
-        } else if let Ok(base64_key) = env::var("GITHUB_PRIVATE_KEY_BASE64") {
+        } else if let Ok(base64_key) = env::var(GH_PRIVATE_KEY_BASE64) {
             base64::engine::general_purpose::STANDARD
                 .decode(&base64_key)
                 .map_err(|e| anyhow!("Failed to decode private key from base64: {}", e))?
         } else {
             return Err(anyhow!(
-                "Either GITHUB_PRIVATE_KEY_PATH or GITHUB_PRIVATE_KEY_BASE64 must be set"
+                "Either {GH_PRIVATE_KEY_PATH} or {GH_PRIVATE_KEY_BASE64} must be set"
             ));
         };
 
@@ -133,8 +157,8 @@ pub struct ServerConfig {
 impl Default for ServerConfig {
     fn default() -> Self {
         Self {
-            host: Ipv4Addr::LOCALHOST,
-            port: 8000,
+            host: DEFAULT_HOST_ADDR,
+            port: DEFAULT_PORT,
         }
     }
 }
@@ -142,15 +166,15 @@ impl Default for ServerConfig {
 impl ServerConfig {
     /// Create server configuration from environment variables
     pub fn from_env() -> Self {
-        let host = env::var("OCTOFER_HOST")
+        let host = env::var(OCTOFER_HOST)
             .ok()
             .and_then(|s| s.parse().ok())
-            .unwrap_or(Ipv4Addr::LOCALHOST);
+            .unwrap_or(DEFAULT_HOST_ADDR);
 
-        let port = env::var("OCTOFER_PORT")
+        let port = env::var(OCTOFER_PORT)
             .ok()
             .and_then(|s| s.parse().ok())
-            .unwrap_or(8000);
+            .unwrap_or(DEFAULT_PORT);
 
         Self { host, port }
     }
@@ -168,8 +192,8 @@ pub struct WebhookConfig {
 impl Default for WebhookConfig {
     fn default() -> Self {
         Self {
-            secret: "development-secret".to_string(),
-            header_name: "x-hub-signature-256".to_string(),
+            secret: WEBHOOK_SECRET.to_string(),
+            header_name: WEBHOOK_HEADER_NAME.to_string(),
         }
     }
 }
@@ -177,11 +201,10 @@ impl Default for WebhookConfig {
 impl WebhookConfig {
     /// Create webhook configuration from environment variables
     pub fn from_env() -> Self {
-        let secret =
-            env::var("GITHUB_WEBHOOK_SECRET").unwrap_or_else(|_| "development-secret".to_string());
+        let secret = env::var(GH_WEBHOOK_SECRET).unwrap_or_else(|_| WEBHOOK_SECRET.to_string());
 
         let header_name =
-            env::var("GITHUB_WEBHOOK_HEADER").unwrap_or_else(|_| "x-hub-signature-256".to_string());
+            env::var(GH_WEBHOOK_HEADER_NAME).unwrap_or_else(|_| WEBHOOK_HEADER_NAME.to_string());
 
         Self {
             secret,
@@ -208,8 +231,8 @@ pub struct LoggingConfig {
 impl Default for LoggingConfig {
     fn default() -> Self {
         Self {
-            level: "info".to_string(),
-            format: "compact".to_string(),
+            level: Level::INFO.to_string(),
+            format: LOG_FORMAT.to_string(),
             with_target: false,
             with_file: false,
             with_thread_ids: false,
@@ -220,21 +243,21 @@ impl Default for LoggingConfig {
 impl LoggingConfig {
     /// Create logging configuration from environment variables
     pub fn from_env() -> Self {
-        let level = env::var("OCTOFER_LOG_LEVEL").unwrap_or_else(|_| "info".to_string());
+        let level = env::var(OCTOFER_LOG_LEVEL).unwrap_or_else(|_| Level::INFO.to_string());
 
-        let format = env::var("OCTOFER_LOG_FORMAT").unwrap_or_else(|_| "compact".to_string());
+        let format = env::var(OCTOFER_LOG_FORMAT).unwrap_or_else(|_| LOG_FORMAT.to_string());
 
-        let with_target = env::var("OCTOFER_LOG_WITH_TARGET")
+        let with_target = env::var(OCTOFER_LOG_WITH_TARGET)
             .ok()
             .and_then(|s| s.parse().ok())
             .unwrap_or(false);
 
-        let with_file = env::var("OCTOFER_LOG_WITH_FILE")
+        let with_file = env::var(OCTOFER_LOG_WITH_FILE)
             .ok()
             .and_then(|s| s.parse().ok())
             .unwrap_or(false);
 
-        let with_thread_ids = env::var("OCTOFER_LOG_WITH_THREAD_IDS")
+        let with_thread_ids = env::var(OCTOFER_LOG_WITH_THREAD_IDS)
             .ok()
             .and_then(|s| s.parse().ok())
             .unwrap_or(false);
@@ -254,7 +277,7 @@ impl LoggingConfig {
 
         let env_filter = EnvFilter::try_from_default_env()
             .or_else(|_| EnvFilter::try_new(&self.level))
-            .unwrap_or_else(|_| EnvFilter::new("info"));
+            .unwrap_or_else(|_| EnvFilter::new(Level::INFO.to_string()));
 
         let subscriber = fmt()
             .with_env_filter(env_filter)
@@ -277,66 +300,66 @@ mod tests {
     #[test]
     fn test_default_config() {
         let config = Config::default();
-        assert_eq!(config.server.host, Ipv4Addr::LOCALHOST);
-        assert_eq!(config.server.port, 8000);
-        assert_eq!(config.webhook.secret, "development-secret");
-        assert_eq!(config.webhook.header_name, "x-hub-signature-256");
-        assert_eq!(config.logging.level, "info");
-        assert_eq!(config.logging.format, "compact");
-        assert_eq!(config.logging.with_target, false);
-        assert_eq!(config.logging.with_file, false);
-        assert_eq!(config.logging.with_thread_ids, false);
+        assert_eq!(config.server.host, DEFAULT_HOST_ADDR);
+        assert_eq!(config.server.port, DEFAULT_PORT);
+        assert_eq!(config.webhook.secret, WEBHOOK_SECRET);
+        assert_eq!(config.webhook.header_name, WEBHOOK_HEADER_NAME);
+        assert_eq!(config.logging.level, Level::INFO.to_string());
+        assert_eq!(config.logging.format, LOG_FORMAT);
+        assert!(!config.logging.with_target);
+        assert!(!config.logging.with_file);
+        assert!(!config.logging.with_thread_ids);
     }
 
     #[test]
     fn test_server_config_from_env() {
-        env::set_var("OCTOFER_HOST", "0.0.0.0");
-        env::set_var("OCTOFER_PORT", "3000");
+        env::set_var(OCTOFER_HOST, "0.0.0.0");
+        env::set_var(OCTOFER_PORT, "3000");
 
         let config = ServerConfig::from_env();
         assert_eq!(config.host, Ipv4Addr::new(0, 0, 0, 0));
         assert_eq!(config.port, 3000);
 
-        env::remove_var("OCTOFER_HOST");
-        env::remove_var("OCTOFER_PORT");
+        env::remove_var(OCTOFER_HOST);
+        env::remove_var(OCTOFER_PORT);
     }
 
     #[test]
     fn test_logging_config_from_env() {
-        env::set_var("OCTOFER_LOG_LEVEL", "debug");
-        env::set_var("OCTOFER_LOG_FORMAT", "pretty");
-        env::set_var("OCTOFER_LOG_WITH_TARGET", "true");
-        env::set_var("OCTOFER_LOG_WITH_FILE", "true");
-        env::set_var("OCTOFER_LOG_WITH_THREAD_IDS", "false");
+        env::set_var(OCTOFER_LOG_LEVEL, "debug");
+        env::set_var(OCTOFER_LOG_FORMAT, "pretty");
+        env::set_var(OCTOFER_LOG_WITH_TARGET, "true");
+        env::set_var(OCTOFER_LOG_WITH_FILE, "true");
+        env::set_var(OCTOFER_LOG_WITH_THREAD_IDS, "false");
 
         let config = LoggingConfig::from_env();
         assert_eq!(config.level, "debug");
         assert_eq!(config.format, "pretty");
-        assert_eq!(config.with_target, true);
-        assert_eq!(config.with_file, true);
-        assert_eq!(config.with_thread_ids, false);
+        assert!(config.with_target);
+        assert!(config.with_file);
+        assert!(!config.with_thread_ids);
 
-        env::remove_var("OCTOFER_LOG_LEVEL");
-        env::remove_var("OCTOFER_LOG_FORMAT");
-        env::remove_var("OCTOFER_LOG_WITH_TARGET");
-        env::remove_var("OCTOFER_LOG_WITH_FILE");
-        env::remove_var("OCTOFER_LOG_WITH_THREAD_IDS");
+        env::remove_var(OCTOFER_LOG_LEVEL);
+        env::remove_var(OCTOFER_LOG_FORMAT);
+        env::remove_var(OCTOFER_LOG_WITH_TARGET);
+        env::remove_var(OCTOFER_LOG_WITH_FILE);
+        env::remove_var(OCTOFER_LOG_WITH_THREAD_IDS);
     }
 
     #[test]
     fn test_logging_config_defaults() {
         // Remove any potentially set environment variables
-        env::remove_var("OCTOFER_LOG_LEVEL");
-        env::remove_var("OCTOFER_LOG_FORMAT");
-        env::remove_var("OCTOFER_LOG_WITH_TARGET");
-        env::remove_var("OCTOFER_LOG_WITH_FILE");
-        env::remove_var("OCTOFER_LOG_WITH_THREAD_IDS");
+        env::remove_var(OCTOFER_LOG_LEVEL);
+        env::remove_var(OCTOFER_LOG_FORMAT);
+        env::remove_var(OCTOFER_LOG_WITH_TARGET);
+        env::remove_var(OCTOFER_LOG_WITH_FILE);
+        env::remove_var(OCTOFER_LOG_WITH_THREAD_IDS);
 
         let config = LoggingConfig::from_env();
-        assert_eq!(config.level, "info");
-        assert_eq!(config.format, "compact");
-        assert_eq!(config.with_target, false);
-        assert_eq!(config.with_file, false);
-        assert_eq!(config.with_thread_ids, false);
+        assert_eq!(config.level, Level::INFO.to_string());
+        assert_eq!(config.format, LOG_FORMAT);
+        assert!(!config.with_target);
+        assert!(!config.with_file);
+        assert!(!config.with_thread_ids);
     }
 }
