@@ -101,10 +101,12 @@ impl WebhookServer {
     where
         F: Fn(Context, Arc<E>) -> Fut + Send + Sync + 'static,
         Fut: std::future::Future<Output = Result<()>> + Send + 'static,
-        E: Send + Sync + 'static + Clone,
+        E: Send + Sync + 'static,
     {
         let event = event.into();
         let boxed_handler: EventHandlerFn = Box::new(move |context| {
+            // TODO: Is this the way?
+            // This should be cheap
             let extra = extra.clone();
             Box::pin(handler(context, extra))
         });

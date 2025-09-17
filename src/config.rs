@@ -14,8 +14,8 @@ use tracing::Level;
 const DEFAULT_HOST_ADDR: Ipv4Addr = Ipv4Addr::LOCALHOST;
 const DEFAULT_PORT: u16 = 8000;
 
-const WEBHOOK_SECRET: &str = "octofer-webhook-secret";
-const WEBHOOK_HEADER_NAME: &str = "x-hub-signature-256";
+pub const WEBHOOK_SECRET: &str = "octofer-webhook-secret";
+pub const WEBHOOK_HEADER_NAME: &str = "x-hub-signature-256";
 
 const GH_APP_ID: &str = "GITHUB_APP_ID";
 const GH_PRIVATE_KEY_PATH: &str = "GITHUB_PRIVATE_KEY_PATH";

@@ -138,10 +138,14 @@ pub type EventHandlerFn = Box<
 >;
 
 /// Trait for types that can handle GitHub events
-pub trait EventHandler: Send + Sync {
+pub trait EventHandler<T>: Send + Sync
+where
+    T: Send + Sync + 'static,
+{
     /// Handle an event with the provided context
     fn handle(
         &self,
         context: Context,
+        extra: Arc<T>,
     ) -> std::pin::Pin<Box<dyn std::future::Future<Output = anyhow::Result<()>> + Send>>;
 }

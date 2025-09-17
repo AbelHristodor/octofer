@@ -32,7 +32,7 @@ pub mod github;
 pub mod webhook;
 
 pub use config::Config;
-pub use core::{Context, EventHandler, EventHandlerFn};
+pub use core::Context;
 use std::sync::Arc;
 
 use crate::webhook::WebhookServer;
@@ -80,7 +80,7 @@ impl Octofer {
     where
         F: Fn(Context, Arc<E>) -> Fut + Send + Sync + 'static,
         Fut: std::future::Future<Output = Result<()>> + Send + 'static,
-        E: Send + Sync + 'static + Clone,
+        E: Send + Sync + 'static,
     {
         self.server.on("issue_comment", handler, extra).await;
         self
