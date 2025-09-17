@@ -11,6 +11,10 @@ license = "MIT"
 repository = "https://github.com/AbelHristodor/octofer"
 description = "A framework for building GitHub Apps in Rust"
 
+[features]
+default = []
+testing = []
+
 [[example]]
 name = "basic"
 path = "examples/basic.rs"

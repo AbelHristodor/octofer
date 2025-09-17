@@ -31,6 +31,9 @@ pub mod core;
 pub mod github;
 pub mod webhook;
 
+#[cfg(feature = "testing")]
+pub mod testing;
+
 pub use config::Config;
 pub use core::{Context, EventHandler, EventHandlerFn};
 
