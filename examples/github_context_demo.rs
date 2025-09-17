@@ -9,17 +9,19 @@ use tracing::{info, warn};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // Initialize tracing
-    tracing_subscriber::fmt::init();
-
     info!("🚀 GitHub Client Context Example");
 
     // Try to create app with configuration from environment
     let app_result = if let Ok(config) = Config::from_env() {
         info!("✅ Using configuration from environment variables");
+        // Initialize logging with the environment configuration
+        config.init_logging();
         Octofer::new(config).await
     } else {
         warn!("⚠️ No environment configuration found, using default (GitHub client will not be available)");
+        // Initialize logging with default configuration
+        let config = Config::default();
+        config.init_logging();
         Ok(Octofer::new_default())
     };
 
