@@ -5,25 +5,21 @@
 use anyhow::Result;
 use octofer::{Config, Octofer};
 use tracing::info;
-use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // Initialize tracing
-    tracing_subscriber::fmt()
-        .with_target(false)
-        .with_env_filter(
-            EnvFilter::try_from_default_env()
-                .or_else(|_| EnvFilter::try_new("info"))
-                .unwrap(),
-        )
-        .compact()
-        .init();
+    // Initialize tracing using configuration
+    let config = Config::from_env().unwrap_or_else(|_| {
+        // Fallback to default configuration if environment variables are not set
+        Config::default()
+    });
+
+    // Initialize logging based on configuration
+    config.init_logging();
 
     info!("Starting Octofer app: example-github-app");
 
-    // Create a new Octofer app with default configuration
-    let config = Config::default();
+    // Create a new Octofer app with the configuration
     let mut app = Octofer::new(config).await.unwrap_or_else(|_| {
         info!("Failed to create app with config, using default");
         Octofer::new_default()

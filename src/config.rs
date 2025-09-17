@@ -18,6 +18,8 @@ pub struct Config {
     pub server: ServerConfig,
     /// Webhook-specific configuration
     pub webhook: WebhookConfig,
+    /// Logging configuration
+    pub logging: LoggingConfig,
 }
 
 impl Config {
@@ -27,6 +29,7 @@ impl Config {
             github: GitHubConfig::from_env()?,
             server: ServerConfig::from_env(),
             webhook: WebhookConfig::from_env(),
+            logging: LoggingConfig::from_env(),
         })
     }
 
@@ -46,7 +49,13 @@ impl Config {
                 secret: webhook_secret,
                 header_name: "x-hub-signature-256".to_string(),
             },
+            logging: LoggingConfig::default(),
         })
+    }
+
+    /// Initialize tracing based on the logging configuration
+    pub fn init_logging(&self) {
+        self.logging.init_tracing();
     }
 }
 
@@ -181,6 +190,86 @@ impl WebhookConfig {
     }
 }
 
+/// Logging configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LoggingConfig {
+    /// Log level (trace, debug, info, warn, error)
+    pub level: String,
+    /// Log format (compact, pretty, json)
+    pub format: String,
+    /// Whether to include target information
+    pub with_target: bool,
+    /// Whether to include file and line information
+    pub with_file: bool,
+    /// Whether to include thread information
+    pub with_thread_ids: bool,
+}
+
+impl Default for LoggingConfig {
+    fn default() -> Self {
+        Self {
+            level: "info".to_string(),
+            format: "compact".to_string(),
+            with_target: false,
+            with_file: false,
+            with_thread_ids: false,
+        }
+    }
+}
+
+impl LoggingConfig {
+    /// Create logging configuration from environment variables
+    pub fn from_env() -> Self {
+        let level = env::var("OCTOFER_LOG_LEVEL").unwrap_or_else(|_| "info".to_string());
+
+        let format = env::var("OCTOFER_LOG_FORMAT").unwrap_or_else(|_| "compact".to_string());
+
+        let with_target = env::var("OCTOFER_LOG_WITH_TARGET")
+            .ok()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(false);
+
+        let with_file = env::var("OCTOFER_LOG_WITH_FILE")
+            .ok()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(false);
+
+        let with_thread_ids = env::var("OCTOFER_LOG_WITH_THREAD_IDS")
+            .ok()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(false);
+
+        Self {
+            level,
+            format,
+            with_target,
+            with_file,
+            with_thread_ids,
+        }
+    }
+
+    /// Initialize tracing subscriber based on this configuration
+    pub fn init_tracing(&self) {
+        use tracing_subscriber::{fmt, EnvFilter};
+
+        let env_filter = EnvFilter::try_from_default_env()
+            .or_else(|_| EnvFilter::try_new(&self.level))
+            .unwrap_or_else(|_| EnvFilter::new("info"));
+
+        let subscriber = fmt()
+            .with_env_filter(env_filter)
+            .with_target(self.with_target)
+            .with_file(self.with_file)
+            .with_thread_ids(self.with_thread_ids);
+
+        match self.format.as_str() {
+            "pretty" => subscriber.pretty().init(),
+            "json" => subscriber.json().init(),
+            _ => subscriber.compact().init(), // Default to compact for unknown formats
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -192,6 +281,11 @@ mod tests {
         assert_eq!(config.server.port, 8000);
         assert_eq!(config.webhook.secret, "development-secret");
         assert_eq!(config.webhook.header_name, "x-hub-signature-256");
+        assert_eq!(config.logging.level, "info");
+        assert_eq!(config.logging.format, "compact");
+        assert_eq!(config.logging.with_target, false);
+        assert_eq!(config.logging.with_file, false);
+        assert_eq!(config.logging.with_thread_ids, false);
     }
 
     #[test]
@@ -205,5 +299,44 @@ mod tests {
 
         env::remove_var("OCTOFER_HOST");
         env::remove_var("OCTOFER_PORT");
+    }
+
+    #[test]
+    fn test_logging_config_from_env() {
+        env::set_var("OCTOFER_LOG_LEVEL", "debug");
+        env::set_var("OCTOFER_LOG_FORMAT", "pretty");
+        env::set_var("OCTOFER_LOG_WITH_TARGET", "true");
+        env::set_var("OCTOFER_LOG_WITH_FILE", "true");
+        env::set_var("OCTOFER_LOG_WITH_THREAD_IDS", "false");
+
+        let config = LoggingConfig::from_env();
+        assert_eq!(config.level, "debug");
+        assert_eq!(config.format, "pretty");
+        assert_eq!(config.with_target, true);
+        assert_eq!(config.with_file, true);
+        assert_eq!(config.with_thread_ids, false);
+
+        env::remove_var("OCTOFER_LOG_LEVEL");
+        env::remove_var("OCTOFER_LOG_FORMAT");
+        env::remove_var("OCTOFER_LOG_WITH_TARGET");
+        env::remove_var("OCTOFER_LOG_WITH_FILE");
+        env::remove_var("OCTOFER_LOG_WITH_THREAD_IDS");
+    }
+
+    #[test]
+    fn test_logging_config_defaults() {
+        // Remove any potentially set environment variables
+        env::remove_var("OCTOFER_LOG_LEVEL");
+        env::remove_var("OCTOFER_LOG_FORMAT");
+        env::remove_var("OCTOFER_LOG_WITH_TARGET");
+        env::remove_var("OCTOFER_LOG_WITH_FILE");
+        env::remove_var("OCTOFER_LOG_WITH_THREAD_IDS");
+
+        let config = LoggingConfig::from_env();
+        assert_eq!(config.level, "info");
+        assert_eq!(config.format, "compact");
+        assert_eq!(config.with_target, false);
+        assert_eq!(config.with_file, false);
+        assert_eq!(config.with_thread_ids, false);
     }
 }

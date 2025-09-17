@@ -23,6 +23,7 @@ path = "examples/basic.rs"
 name = "github_client"
 path = "examples/github_client.rs"
 
+
 [[example]]
 name = "github_context_demo"
 path = "examples/github_context_demo.rs"
@@ -30,6 +31,10 @@ path = "examples/github_context_demo.rs"
 [[example]]
 name = "testing_framework"
 path = "examples/testing_framework.rs"
+
+[[example]]
+name = "logging_test"
+path = "examples/logging_test.rs"
 
 [dependencies]
 # Async runtime
@@ -44,7 +49,7 @@ anyhow = "1.0"
 
 # Logging
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 
 # GitHub API
 octocrab = "0.45"

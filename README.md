@@ -81,6 +81,13 @@ export GITHUB_WEBHOOK_SECRET=your_webhook_secret
 # Server configuration (optional)
 export OCTOFER_HOST=127.0.0.1  # Default: 127.0.0.1
 export OCTOFER_PORT=8000       # Default: 8000
+
+# Logging configuration (optional)
+export OCTOFER_LOG_LEVEL=info               # Default: info (trace, debug, info, warn, error)
+export OCTOFER_LOG_FORMAT=compact           # Default: compact (compact, pretty, json)
+export OCTOFER_LOG_WITH_TARGET=false        # Default: false (show target module)
+export OCTOFER_LOG_WITH_FILE=false          # Default: false (show file and line info)
+export OCTOFER_LOG_WITH_THREAD_IDS=false    # Default: false (show thread IDs)
 ```
 
 You can also create configuration programmatically:
@@ -96,6 +103,9 @@ let config = Config::new(
     std::net::Ipv4Addr::LOCALHOST,            // host
     8000,                                      // port
 )?;
+
+// Initialize logging with the configuration
+config.init_logging();
 ```
 
 ## Development
@@ -182,6 +192,12 @@ cargo run --example basic
 
 # GitHub client example
 cargo run --example github_client
+
+# Logging configuration test
+cargo run --example logging_test
+
+# Test with custom logging
+OCTOFER_LOG_FORMAT=json OCTOFER_LOG_LEVEL=debug cargo run --example logging_test
 ```
 
 Use the CLI:

@@ -11,8 +11,11 @@ use tracing::info;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // Initialize tracing
-    tracing_subscriber::fmt::init();
+    // Initialize tracing using configuration (try environment first, fallback to default)
+    let logging_config = Config::from_env()
+        .map(|c| c.logging)
+        .unwrap_or_else(|_| Config::default().logging);
+    logging_config.init_tracing();
 
     info!("GitHub Client Example");
 
