@@ -11,8 +11,8 @@ use std::net::Ipv4Addr;
 use tracing::Level;
 
 /// Constants
-const DEFAULT_HOST_ADDR: Ipv4Addr = Ipv4Addr::LOCALHOST;
-const DEFAULT_PORT: u16 = 8000;
+pub const DEFAULT_HOST_ADDR: Ipv4Addr = Ipv4Addr::LOCALHOST;
+pub const DEFAULT_PORT: u16 = 8000;
 
 pub const WEBHOOK_SECRET: &str = "octofer-webhook-secret";
 pub const WEBHOOK_HEADER_NAME: &str = "x-hub-signature-256";

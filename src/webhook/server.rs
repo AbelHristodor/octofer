@@ -8,7 +8,7 @@ use tokio::sync::RwLock;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer};
 use tracing::{info, Level};
 
-use crate::config::GitHubConfig;
+use crate::config::{GitHubConfig, DEFAULT_HOST_ADDR, DEFAULT_PORT};
 use crate::core::{Context, EventHandlerFn};
 use crate::github::{
     middlewares::{github_event_middleware, verify_hmac_middleware, HmacConfig},
@@ -16,9 +16,6 @@ use crate::github::{
 };
 
 use super::handlers;
-
-const DEFAULT_HOST: Ipv4Addr = Ipv4Addr::LOCALHOST;
-const DEFAULT_PORT: u16 = 8000;
 
 pub type WebhookEventKind = String;
 
@@ -81,7 +78,7 @@ impl WebhookServer {
 
         Self {
             state,
-            host: DEFAULT_HOST,
+            host: DEFAULT_HOST_ADDR,
             port: DEFAULT_PORT,
             hmac_config,
         }

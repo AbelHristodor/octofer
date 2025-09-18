@@ -6,6 +6,7 @@
 use octocrab::models::webhook_events::WebhookEvent;
 
 use crate::{github::GitHubClient, webhook::WebhookEventKind};
+use crate::{SerdeToString, UNDEFINED_EVENT_KIND};
 use std::sync::Arc;
 
 /// Context passed to event handlers containing event information and utilities
@@ -44,42 +45,14 @@ impl Context {
 
     pub fn kind(&self) -> WebhookEventKind {
         match &self.event {
-            Some(e) => serde_json::to_value(e.kind.clone()).unwrap().to_string(),
-            None => "Undefined".to_string(),
+            Some(e) => e.kind.to_string(),
+            None => UNDEFINED_EVENT_KIND.to_string(),
         }
     }
 
     /// Get the event payload
     pub fn event(&self) -> &Option<WebhookEvent> {
         &self.event
-    }
-
-    /// Get the event type as a string
-    /// TODO: FIx this to use serde serialization
-    pub fn event_type(&self) -> &str {
-        match &self.event {
-            Some(e) => {
-                // Convert the event kind to a string representation
-                match &e.kind {
-                    octocrab::models::webhook_events::WebhookEventType::Issues => "issues",
-                    octocrab::models::webhook_events::WebhookEventType::IssueComment => {
-                        "issue_comment"
-                    }
-                    octocrab::models::webhook_events::WebhookEventType::PullRequest => {
-                        "pull_request"
-                    }
-                    octocrab::models::webhook_events::WebhookEventType::Push => "push",
-                    octocrab::models::webhook_events::WebhookEventType::Create => "create",
-                    octocrab::models::webhook_events::WebhookEventType::Delete => "delete",
-                    octocrab::models::webhook_events::WebhookEventType::Fork => "fork",
-                    octocrab::models::webhook_events::WebhookEventType::Star => "star",
-                    octocrab::models::webhook_events::WebhookEventType::Watch => "watch",
-                    octocrab::models::webhook_events::WebhookEventType::Release => "release",
-                    _ => "unknown",
-                }
-            }
-            None => "undefined",
-        }
     }
 
     /// Get the event payload as a JSON value

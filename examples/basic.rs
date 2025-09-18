@@ -37,7 +37,7 @@ async fn main() -> Result<()> {
     app.on_issue_comment(
         |context, e| async move {
             info!("Issue comment event received!");
-            info!("Event type: {}", context.event_type());
+            info!("Event type: {}", context.kind());
             info!("Installation ID: {:?}", context.installation_id());
 
             info!("Extra: {:?}", e.a);
