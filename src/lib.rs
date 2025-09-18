@@ -76,6 +76,8 @@ impl Octofer {
             config.server.host,
             config.server.port,
             config.github.clone(),
+            &config.webhook.secret,
+            &config.webhook.header_name,
         )
         .await?;
 

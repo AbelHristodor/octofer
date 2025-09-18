@@ -11,7 +11,7 @@ use axum::{
 };
 use hmac::Mac;
 use std::sync::Arc;
-use tracing::debug;
+use tracing::{debug, info};
 
 type HmacSha256 = hmac::Hmac<sha2::Sha256>;
 

@@ -48,7 +48,13 @@ impl Default for WebhookServer {
 
 impl WebhookServer {
     /// Create a new webhook server with the provided configuration
-    pub async fn new(host: Ipv4Addr, port: u16, github_config: GitHubConfig) -> Result<Self> {
+    pub async fn new(
+        host: Ipv4Addr,
+        port: u16,
+        github_config: GitHubConfig,
+        secret: &str,
+        hmac_header: &str,
+    ) -> Result<Self> {
         let auth = GitHubAuth::from_config(&github_config);
         let github_client = Arc::new(GitHubClient::new(auth).await?);
 
@@ -57,7 +63,7 @@ impl WebhookServer {
             github_client: Some(github_client),
         };
 
-        let hmac_config = Arc::new(HmacConfig::default());
+        let hmac_config = Arc::new(HmacConfig::new(secret.into(), hmac_header.into()));
 
         Ok(Self {
             state,
