@@ -251,7 +251,7 @@ impl GitHubClient {
     /// # use octofer::github::GitHubClient;
     /// # async fn example(client: GitHubClient) -> anyhow::Result<()> {
     /// let app_client = client.app_client();
-    /// 
+    ///
     /// // Use the app client directly for custom operations
     /// // Note: Specific API methods depend on octocrab version
     /// println!("App client is available for custom operations");
@@ -285,10 +285,10 @@ impl GitHubClient {
     /// # use octofer::github::GitHubClient;
     /// # async fn example(client: GitHubClient) -> anyhow::Result<()> {
     /// let installations = client.get_installations().await?;
-    /// 
+    ///
     /// for installation in installations {
-    ///     println!("Installation: {} (ID: {})", 
-    ///         installation.account.login, 
+    ///     println!("Installation: {} (ID: {})",
+    ///         installation.account.login,
     ///         installation.id.0
     ///     );
     ///     println!("  Target type: {:?}", installation.target_type);
@@ -341,11 +341,11 @@ impl GitHubClient {
     /// # async fn example(client: GitHubClient) -> anyhow::Result<()> {
     /// let installation_id = 12345;
     /// let installation_client = client.installation_client(installation_id).await?;
-    /// 
+    ///
     /// // Use the installation client for repository operations
     /// let user = installation_client.current().user().await?;
     /// println!("Acting as: {}", user.login);
-    /// 
+    ///
     /// // Create an issue (if the installation has the necessary permissions)
     /// // let issue = installation_client
     /// //     .issues("owner", "repo")
@@ -474,7 +474,7 @@ impl GitHubClient {
     /// # async fn example(client: GitHubClient) -> anyhow::Result<()> {
     /// let installation_id = 12345;
     /// let repositories = client.get_installation_repositories(installation_id).await?;
-    /// 
+    ///
     /// for repo in repositories {
     ///     println!("Repository: {}", repo.full_name.unwrap_or_default());
     ///     println!("  Private: {}", repo.private.unwrap_or(false));
@@ -524,13 +524,13 @@ impl GitHubClient {
     /// # use octofer::github::GitHubClient;
     /// # async fn example(client: GitHubClient) -> anyhow::Result<()> {
     /// let installation_id = 12345;
-    /// 
+    ///
     /// let user_login = client.with_installation(installation_id, |installation_client| {
     ///     // Note: This is a simplified example - the actual API is async
     ///     // In practice, you'd use with_installation_async for async operations
     ///     Ok("example_user".to_string())
     /// }).await?;
-    /// 
+    ///
     /// println!("User: {}", user_login);
     /// # Ok(())
     /// # }
@@ -552,7 +552,7 @@ impl GitHubClient {
     /// # Arguments
     ///
     /// * `installation_id` - The ID of the installation to get a client for
-    /// * `f` - An async closure that receives the installation client and returns a Future<Result>
+    /// * `f` - An async closure that receives the installation client and returns a `Future<Result>`
     ///
     /// # Examples
     ///
@@ -560,12 +560,12 @@ impl GitHubClient {
     /// # use octofer::github::GitHubClient;
     /// # async fn example(client: GitHubClient) -> anyhow::Result<()> {
     /// let installation_id = 12345;
-    /// 
+    ///
     /// let user_info = client.with_installation_async(installation_id, |installation_client| async move {
     ///     let user = installation_client.current().user().await?;
     ///     Ok(format!("{} ({})", user.login, user.name.unwrap_or_default()))
     /// }).await?;
-    /// 
+    ///
     /// println!("User info: {}", user_info);
     /// # Ok(())
     /// # }
@@ -596,7 +596,7 @@ impl GitHubClient {
     /// # async fn example(client: GitHubClient) -> anyhow::Result<()> {
     /// // Clear cache for a specific installation
     /// client.clear_installation_cache(Some(12345)).await;
-    /// 
+    ///
     /// // Clear all cached clients
     /// client.clear_installation_cache(None).await;
     /// # Ok(())

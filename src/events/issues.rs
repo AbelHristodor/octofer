@@ -84,7 +84,7 @@ impl Octofer {
     ///         // Check if comment mentions the bot
     ///         if let Some(comment_body) = payload.get("comment")
     ///             .and_then(|c| c.get("body"))
-    ///             .and_then(|b| b.as_str()) 
+    ///             .and_then(|b| b.as_str())
     ///         {
     ///             if comment_body.contains("@bot") {
     ///                 println!("Bot was mentioned in comment: {}", comment_body);

@@ -26,13 +26,13 @@
 //! # async fn example() -> anyhow::Result<()> {
 //! // Load configuration from environment variables
 //! let config = Config::from_env()?;
-//! 
+//!
 //! // Create authentication
 //! let auth = GitHubAuth::from_config(&config.github);
-//! 
+//!
 //! // Create GitHub client
 //! let client = GitHubClient::new(auth).await?;
-//! 
+//!
 //! // Now you can use the client for GitHub API operations
 //! let installations = client.get_installations().await?;
 //! println!("Found {} installations", installations.len());
@@ -47,7 +47,7 @@
 //! # async fn example(client: GitHubClient) -> anyhow::Result<()> {
 //! // Get all installations
 //! let installations = client.get_installations().await?;
-//! 
+//!
 //! for installation in installations {
 //!     println!("Installation: {}", installation.account.login);
 //!     

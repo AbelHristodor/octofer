@@ -12,11 +12,11 @@
 //!
 //! ```rust,no_run
 //! use octofer::{Config, github::GitHubAuth};
-//! 
+//!
 //! // Create authentication from configuration
 //! let config = Config::from_env()?;
 //! let auth = GitHubAuth::from_config(&config.github);
-//! 
+//!
 //! println!("App ID: {}", auth.app_id());
 //! # Ok::<(), anyhow::Error>(())
 //! ```
@@ -32,11 +32,11 @@ use crate::config::GitHubConfig;
 ///
 /// ```rust,no_run
 /// use octofer::{Config, github::GitHubAuth};
-/// 
+///
 /// // Create from configuration
 /// let config = Config::from_env()?;
 /// let auth = GitHubAuth::from_config(&config.github);
-/// 
+///
 /// // Access authentication details
 /// println!("App ID: {}", auth.app_id());
 /// println!("Private key length: {} bytes", auth.private_key().len());
@@ -64,7 +64,7 @@ impl GitHubAuth {
     ///
     /// ```rust,no_run
     /// use octofer::{Config, github::GitHubAuth};
-    /// 
+    ///
     /// let config = Config::from_env()?;
     /// let auth = GitHubAuth::from_config(&config.github);
     /// # Ok::<(), anyhow::Error>(())
@@ -84,7 +84,7 @@ impl GitHubAuth {
     ///
     /// ```rust,no_run
     /// use octofer::{Config, github::GitHubAuth};
-    /// 
+    ///
     /// let config = Config::from_env()?;
     /// let auth = GitHubAuth::from_config(&config.github);
     /// println!("App ID: {}", auth.app_id());
@@ -103,7 +103,7 @@ impl GitHubAuth {
     ///
     /// ```rust,no_run
     /// use octofer::{Config, github::GitHubAuth};
-    /// 
+    ///
     /// let config = Config::from_env()?;
     /// let auth = GitHubAuth::from_config(&config.github);
     /// let key_bytes = auth.private_key();
@@ -137,10 +137,10 @@ impl GitHubAuth {
 ///
 /// ```rust,no_run
 /// use octofer::github::auth::parse_to_utc;
-/// 
+///
 /// let datetime = parse_to_utc("2025-07-10T09:14:47Z");
 /// println!("Parsed datetime: {}", datetime);
-/// 
+///
 /// // With timezone offset
 /// let datetime = parse_to_utc("2025-07-10T09:14:47+02:00");
 /// println!("UTC datetime: {}", datetime);

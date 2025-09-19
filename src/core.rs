@@ -71,7 +71,7 @@ use std::sync::Arc;
 /// ## Accessing event information
 /// ```rust,no_run
 /// use octofer::Context;
-/// 
+///
 /// async fn my_handler(context: Context) -> anyhow::Result<()> {
 ///     // Get the event type
 ///     println!("Event type: {}", context.kind());
@@ -92,7 +92,7 @@ use std::sync::Arc;
 /// ## Using the GitHub API client
 /// ```rust,no_run
 /// use octofer::Context;
-/// 
+///
 /// async fn api_handler(context: Context) -> anyhow::Result<()> {
 ///     if let Some(client) = context.github() {
 ///         // Use the client for app-level operations
@@ -133,10 +133,10 @@ impl Context {
     ///
     /// ```rust
     /// use octofer::Context;
-    /// 
+    ///
     /// // Create context without event data
     /// let context = Context::new(None, None);
-    /// 
+    ///
     /// // Create context with installation ID
     /// let context = Context::new(None, Some(12345));
     /// ```
@@ -165,7 +165,7 @@ impl Context {
     /// ```rust,no_run
     /// use octofer::{Context, github::GitHubClient};
     /// use std::sync::Arc;
-    /// 
+    ///
     /// // This is typically done by the framework, not user code
     /// let context = Context::with_github_client(
     ///     None,
@@ -194,7 +194,7 @@ impl Context {
     ///
     /// ```rust,no_run
     /// use octofer::Context;
-    /// 
+    ///
     /// async fn handler(context: Context) -> anyhow::Result<()> {
     ///     match context.kind().as_str() {
     ///         "issues" => println!("This is an issue event"),
@@ -221,7 +221,7 @@ impl Context {
     ///
     /// ```rust,no_run
     /// use octofer::Context;
-    /// 
+    ///
     /// async fn handler(context: Context) -> anyhow::Result<()> {
     ///     if let Some(event) = context.event() {
     ///         println!("Event kind: {:?}", event.kind);
@@ -250,7 +250,7 @@ impl Context {
     ///
     /// ```rust,no_run
     /// use octofer::Context;
-    /// 
+    ///
     /// async fn handler(context: Context) -> anyhow::Result<()> {
     ///     let payload = context.payload();
     ///     
@@ -288,7 +288,7 @@ impl Context {
     ///
     /// ```rust,no_run
     /// use octofer::Context;
-    /// 
+    ///
     /// async fn handler(context: Context) -> anyhow::Result<()> {
     ///     match context.installation_id() {
     ///         Some(id) => println!("Installation ID: {}", id),
@@ -312,7 +312,7 @@ impl Context {
     ///
     /// ```rust,no_run
     /// use octofer::Context;
-    /// 
+    ///
     /// async fn handler(context: Context) -> anyhow::Result<()> {
     ///     if let Some(client) = context.github() {
     ///         // Get all installations for this GitHub App
@@ -351,7 +351,7 @@ impl Context {
     ///
     /// ```rust,no_run
     /// use octofer::Context;
-    /// 
+    ///
     /// async fn handler(context: Context) -> anyhow::Result<()> {
     ///     if let Some(client) = context.installation_client().await? {
     ///         // Use the installation client for repository operations
@@ -387,13 +387,13 @@ impl Context {
 ///
 /// ```rust,no_run
 /// use octofer::{Context, core::EventHandlerFn};
-/// 
+///
 /// // This function matches the EventHandlerFn signature
 /// async fn my_handler(context: Context) -> anyhow::Result<()> {
 ///     println!("Processing event: {}", context.kind());
 ///     Ok(())
 /// }
-/// 
+///
 /// // Convert to EventHandlerFn
 /// let handler: EventHandlerFn = Box::new(|context| {
 ///     Box::pin(async move {
@@ -426,9 +426,9 @@ pub type EventHandlerFn = Box<
 /// ```rust,no_run
 /// use octofer::{Context, core::EventHandler};
 /// use std::sync::Arc;
-/// 
+///
 /// struct MyHandler;
-/// 
+///
 /// impl EventHandler<()> for MyHandler {
 ///     fn handle(
 ///         &self,

@@ -16,8 +16,8 @@
 //! # Examples
 //!
 //! ```rust,no_run
-//! use octofer::github::models::{Repository, User, Installation};
-//! 
+//! use octofer::github::models::{Repository, Installation};
+//!
 //! // These types are available for use in your application
 //! fn process_repository(repo: Repository) {
 //!     if let Some(name) = repo.full_name {
@@ -27,12 +27,10 @@
 //!         println!("Private: {}", private);
 //!     }
 //! }
-//! 
-//! fn process_user(user: User) {
-//!     println!("User: {}", user.login);
-//!     if let Some(name) = user.name {
-//!         println!("Name: {}", name);
-//!     }
+//!
+//! fn process_installation(installation: Installation) {
+//!     println!("Installation ID: {}", installation.id.0);
+//!     println!("Account: {}", installation.account.login);
 //! }
 //! ```
 //!
