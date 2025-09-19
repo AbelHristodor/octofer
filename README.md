@@ -1,63 +1,58 @@
 # Octofer
 
-A framework for building GitHub Apps in Rust, inspired by Probot.
+> ⚠️ **Under Development** - This framework is currently in active development and not yet ready for production use.
 
-## Overview
+A framework for building GitHub Apps in Rust, inspired by Probot. Octofer provides a clean, type-safe way to build GitHub Apps with minimal boilerplate and automatic webhook handling.
 
-Octofer provides a clean, type-safe way to build GitHub Apps in Rust. The framework features a modular architecture with centralized configuration management and a simple, intuitive API for handling GitHub webhook events.
+## What is Octofer?
 
-## Architecture
+Octofer simplifies GitHub App development by:
+- **Handling webhook events** - Automatically receives and routes GitHub webhook events
+- **Managing authentication** - Handles GitHub App authentication and installation tokens
+- **Providing type safety** - Full Rust type safety for GitHub API interactions
+- **Offering simple APIs** - Clean, intuitive event handler registration
 
-The framework is organized into modules within a single crate:
+## Available Event Handlers
 
-- **`config`** - Centralized configuration management with environment variable support
-- **`core`** - Core types, traits, and utilities (Context, EventHandler)
-- **`github`** - GitHub API client and authentication with automatic token management
-- **`webhook`** - Webhook handling and event routing with middleware support
+Currently supported GitHub webhook events:
 
-Additionally, there's a separate CLI crate:
+- `on_issue_comment()` - Issue comment events (created, edited, deleted)
+- `on_issue()` - Issue events (opened, closed, edited, etc.)
+- `on_pull_request()` - Pull request events (opened, closed, merged, etc.)
+- `on_pull_request_review()` - Pull request review events
+- `on_pull_request_review_comment()` - Pull request review comment events
+- `on_pull_request_review_thread()` - Pull request review thread events
 
-- **`octofer-cli`** - CLI tools for app scaffolding and development
-
-## Quick Start
-
-Add Octofer to your `Cargo.toml`:
-
-```toml
-[dependencies]
-octofer = "0.1.0"
-tokio = { version = "1.0", features = ["full"] }
-```
-
-Create your GitHub App:
+## Quick Example
 
 ```rust
+use std::sync::Arc;
 use octofer::{Octofer, Config};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let config = Config::from_env()?;
-    let mut app = Octofer::new(config).await?;
+    let config = Config::from_env().unwrap_or_default();
+    config.init_logging();
     
-    app.on_issues(|context| async move {
-        println!("Issue event received: {:?}", context.payload());
-        
-        // Access GitHub client for API operations
-        if let Some(github_client) = context.github() {
-            // Use the GitHub client for app-level operations
-            let installations = github_client.get_installations().await?;
-            println!("App has {} installations", installations.len());
-        }
-        
-        // Get installation-specific authenticated client
-        if let Ok(Some(client)) = context.installation_client().await {
-            // Make authenticated API calls for this specific installation
-            let user = client.current().user().await?;
-            println!("Authenticated as: {}", user.login);
-        }
-        
-        Ok(())
-    }).await;
+    let mut app = Octofer::new(config).await.unwrap_or_else(|_| {
+        Octofer::new_default()
+    });
+
+    // Handle issue comments
+    app.on_issue_comment(
+        |context, _| async move {
+            println!("Issue comment event received!");
+            println!("Event type: {}", context.kind());
+            
+            if let Some(client) = &context.github_client {
+                // Use GitHub API client here
+                println!("GitHub client available for API calls");
+            }
+            
+            Ok(())
+        },
+        Arc::new(()),
+    ).await;
     
     app.start().await?;
     Ok(())

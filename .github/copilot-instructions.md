@@ -1,13 +1,26 @@
 # Octofer - GitHub Apps Framework for Rust
 
+> ⚠️ **Under Development** - This framework is currently in active development and not yet ready for production use.
+
 Always follow these instructions first and only fallback to additional search and context gathering if the information here is incomplete or found to be in error.
 
 ## Project Overview
 
-Octofer is a Rust framework for building GitHub Apps, inspired by Probot. It uses a Cargo workspace architecture with 2 crates:
+Octofer is a Rust framework for building GitHub Apps, inspired by Probot. It provides a clean, type-safe way to build GitHub Apps with minimal boilerplate and automatic webhook handling.
 
-- **`octofer`** - Main framework crate with all core functionality organized into modules
-- **`octofer-cli`** - CLI tools for app scaffolding and development
+**Current Status**: Single crate architecture with modular organization:
+- **`src/`** - Main framework with modules for config, core, events, github, and webhook handling
+
+## Available Event Handlers
+
+Currently supported GitHub webhook events:
+
+- `on_issue_comment()` - Issue comment events (created, edited, deleted)
+- `on_issue()` - Issue events (opened, closed, edited, etc.)
+- `on_pull_request()` - Pull request events (opened, closed, merged, etc.)
+- `on_pull_request_review()` - Pull request review events
+- `on_pull_request_review_comment()` - Pull request review comment events
+- `on_pull_request_review_thread()` - Pull request review thread events
 
 ## Essential Build and Development Commands
 
@@ -63,19 +76,21 @@ cargo clippy -- -D warnings
 cargo check
 ```
 
-### Running Examples and CLI
+### Running Examples
 
 ```bash
+# Run the basic GitHub App example
+cargo run --example basic
+
 # Run the GitHub client example (demonstrates API integration)
 cargo run --example github_client
 
-# Use the CLI tool
-cargo run -p octofer-cli -- --help
-cargo run -p octofer-cli -- new my-app
-cargo run -p octofer-cli -- dev --port 3000
-```
+# Run logging configuration test
+cargo run --example logging_test
 
-**Note:** Several examples currently have compilation errors due to API changes and need to be updated.
+# Test with custom logging
+OCTOFER_LOG_FORMAT=json OCTOFER_LOG_LEVEL=debug cargo run --example logging_test
+```
 
 ## Validation Scenarios
 
@@ -95,29 +110,23 @@ cargo run -p octofer-cli -- dev --port 3000
 
 3. **Basic Functionality Validation:**
    ```bash
-   # Test the GitHub client example (should start and stop cleanly)
+   # Test the basic example (should start webhook server)
+   cargo run --example basic
+   
+   # Test the GitHub client example
    cargo run --example github_client
    
-   # Test CLI functionality
-   cargo run -p octofer-cli -- --help
-   ```
-
-4. **Note on Examples:**
-   ```bash
-   # Several examples currently have compilation errors and need updates:
-   # - basic.rs: API method name changes (event_type -> event)
-   # - issue_comment_handler.rs: Missing payload() method
-   # - complete_issue_comment_bot.rs: Same API issues
-   # - github_context_demo.rs: Sync trait issues
+   # Test logging configuration
+   cargo run --example logging_test
    ```
 
 **Expected Outcomes:**
+- Basic example should start webhook server on localhost:8000
 - GitHub client example should complete silently without errors
-- CLI should display help with "new" and "dev" subcommands
+- Logging test should demonstrate different log formats
 - All builds should complete without compilation errors
 - Formatting check should pass with no diffs
 - Clippy should pass with no warnings
-- Some examples will currently fail to compile due to API changes
 
 ## Common Development Tasks
 
@@ -125,8 +134,9 @@ cargo run -p octofer-cli -- dev --port 3000
 ```bash
 # Repository root structure:
 # .
-# ├── Cargo.toml              # Workspace definition
+# ├── Cargo.toml              # Project configuration
 # ├── README.md               # Project documentation  
+# ├── TESTING.md              # Testing framework documentation
 # ├── .gitignore              # Git ignore rules
 # ├── .github/                # GitHub configuration
 # │   └── copilot-instructions.md  # This file
@@ -134,6 +144,10 @@ cargo run -p octofer-cli -- dev --port 3000
 # │   ├── lib.rs             # Main library entry point
 # │   ├── core.rs            # Core types and Context
 # │   ├── config.rs          # Configuration management
+# │   ├── events/            # Event handler implementations
+# │   │   ├── mod.rs         # Events module entry
+# │   │   ├── issues.rs      # Issue and issue comment handlers
+# │   │   └── prs.rs         # Pull request handlers
 # │   ├── github/            # GitHub API integration
 # │   │   ├── mod.rs         # GitHub module entry
 # │   │   ├── auth.rs        # Authentication logic
@@ -147,16 +161,10 @@ cargo run -p octofer-cli -- dev --port 3000
 # │       ├── mod.rs         # Webhook module entry
 # │       ├── server.rs      # HTTP server implementation
 # │       └── handlers.rs    # Event routing
-# ├── examples/              # Usage examples
-# │   ├── basic.rs           # Basic app example (needs fixes)
-# │   ├── github_client.rs   # Working API client demo
-# │   ├── issue_comment_handler.rs      # Comment handler (needs fixes)
-# │   ├── complete_issue_comment_bot.rs # Complete bot (needs fixes)
-# │   └── github_context_demo.rs        # Context demo (needs fixes)
-# └── octofer-cli/           # CLI tooling crate
-#     ├── Cargo.toml         # CLI crate config
-#     └── src/
-#         └── main.rs        # CLI implementation
+# └── examples/              # Usage examples
+#     ├── basic.rs           # Basic app example
+#     ├── github_client.rs   # Working API client demo
+#     └── logging_test.rs    # Logging configuration demo
 ```
 
 ### Working with the Codebase
@@ -164,17 +172,17 @@ cargo run -p octofer-cli -- dev --port 3000
 When making changes to specific functionality:
 
 - **Core types/traits**: Edit `src/core.rs`
+- **Event handlers**: Edit `src/events/issues.rs` or `src/events/prs.rs`
 - **GitHub API features**: Edit `src/github/client.rs`, `src/github/models.rs`
 - **Authentication**: Edit `src/github/auth.rs`
 - **Webhook handling**: Edit `src/webhook/server.rs`, `src/webhook/handlers.rs`
 - **Configuration**: Edit `src/config.rs`
-- **CLI commands**: Edit `octofer-cli/src/main.rs`
 - **Main framework**: Edit `src/lib.rs`
 - **Examples**: Add to `examples/`
 
 ### Adding Dependencies
 
-Dependencies are managed at the workspace level in the root `Cargo.toml`. The main crate dependencies are in the `[dependencies]` section:
+Dependencies are managed in the root `Cargo.toml`:
 
 ```toml
 [dependencies]
@@ -182,19 +190,13 @@ Dependencies are managed at the workspace level in the root `Cargo.toml`. The ma
 new-dependency = "version"
 ```
 
-The CLI has its own dependencies in `octofer-cli/Cargo.toml`.
-
 ### Known Issues and Limitations
 
-1. **Example Compilation Errors**: Several examples have compilation errors due to API changes:
-   - `basic.rs`: Uses `context.event_type()` which should be `context.event()`
-   - `issue_comment_handler.rs`: Uses `context.payload()` method which doesn't exist
-   - `complete_issue_comment_bot.rs`: Same payload API issues
-   - `github_context_demo.rs`: Future Sync trait requirements issues
+1. **Development Status**: Framework is under active development and not production-ready
 
 2. **Network Dependencies**: The GitHub client example may fail with network errors when accessing the GitHub API without proper authentication or due to rate limiting. This is normal behavior.
 
-3. **API Evolution**: The framework is actively being developed and some examples may lag behind the current API.
+3. **Configuration Requirements**: Most functionality requires proper GitHub App configuration via environment variables
 
 ## Quick Reference Commands
 
@@ -212,8 +214,10 @@ cargo clippy -- -D warnings
 # 4. Run tests
 cargo test
 
-# 5. Test examples (only working ones)
+# 5. Test examples
+cargo run --example basic
 cargo run --example github_client
+cargo run --example logging_test
 ```
 
 ### Debugging and Troubleshooting
@@ -221,14 +225,11 @@ cargo run --example github_client
 # Clean rebuild if having dependency issues
 cargo clean && cargo build
 
-# Check specific crate
-cargo check -p octofer-cli
+# Run with debug output
+RUST_LOG=debug cargo run --example basic
 
-# Run with debug output (if example works)
-RUST_LOG=debug cargo run --example github_client
-
-# Build individual crate
-cargo build -p octofer-cli
+# Run with custom logging configuration
+OCTOFER_LOG_FORMAT=json OCTOFER_LOG_LEVEL=debug cargo run --example logging_test
 ```
 
 ### Performance Notes
