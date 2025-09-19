@@ -1,5 +1,9 @@
 # Octofer
 
+<p align="center">
+  <img src=".github/assets/logo.PNG" alt="Octofer Logo" width="200">
+</p>
+
 > ⚠️ **Under Development** - This framework is currently in active development and not yet ready for production use.
 
 A framework for building GitHub Apps in Rust, inspired by [Probot](https://github.com/probot/probot). Octofer provides a clean, type-safe way to build GitHub Apps with minimal boilerplate and automatic webhook handling.
