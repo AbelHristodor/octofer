@@ -1,8 +1,15 @@
 <p align="center">
   <a href="#"><img src="https://github.com/AbelHristodor/octofer/blob/main/.github/assets/logo.PNG?raw=true" width="160" alt="Octofer's logo" /></a>
+
 </p>
 <h3 align="center"><a href="#">Octofer</a></h3>
 <p align="center">A framework for building GitHub Apps, in Rust </p>
+<p align="center">
+<img alt="Crates.io Version" src="https://img.shields.io/crates/v/octofer">
+<img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/AbelHristodor/octofer/tests.yaml">
+<img alt="GitHub License" src="https://img.shields.io/github/license/AbelHristodor/octofer">
+<img alt="GitHub top language" src="https://img.shields.io/github/languages/top/AbelHristodor/octofer">
+</p>
 
 ---
 
