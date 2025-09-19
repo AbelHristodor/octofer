@@ -20,15 +20,6 @@ path = "examples/basic.rs"
 name = "github_client"
 path = "examples/github_client.rs"
 
-
-[[example]]
-name = "github_context_demo"
-path = "examples/github_context_demo.rs"
-
-[[example]]
-name = "logging_test"
-path = "examples/logging_test.rs"
-
 [dev-dependencies]
 shell-words = "1.1.0"
 regex = "1.11.2"
