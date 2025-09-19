@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="#"><img src=".github/assets/logo.PNG" width="160" alt="Octofer's logo" /></a>
+  <a href="#"><img src="https://github.com/AbelHristodor/octofer/blob/main/.github/assets/logo.PNG?raw=true" width="160" alt="Octofer's logo" /></a>
 </p>
 <h3 align="center"><a href="#">Octofer</a></h3>
 <p align="center">A framework for building GitHub Apps, in Rust </p>
