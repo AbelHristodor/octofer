@@ -15,11 +15,13 @@
 //!     let mut app = Octofer::new(config).await.unwrap_or_else(|_| {
 //!         Octofer::new_default()
 //!     });
+//!
+//!     let extra = std::sync::Arc::new({});
 //!     
-//!     app.on_issues(|context| async move {
+//!     app.on_issue(|context, e| async move {
 //!         println!("Issue event received: {:?}", context.payload());
 //!         Ok(())
-//!     }).await;
+//!     }, extra).await;
 //!     
 //!     app.start().await?;
 //!     Ok(())
