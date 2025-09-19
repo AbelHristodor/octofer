@@ -10,7 +10,6 @@ use axum::{
     response::Response,
 };
 use hmac::Mac;
-use std::sync::Arc;
 use tracing::debug;
 
 type HmacSha256 = hmac::Hmac<sha2::Sha256>;

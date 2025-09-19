@@ -320,7 +320,7 @@ impl WebhookServer {
             .push(boxed_handler);
     }
 
-    pub fn add_middleware<T>(mut self, layer: T) -> Result<()>
+    pub fn add_middleware<T>(&mut self, layer: T) -> Result<()>
     where
         T: Layer<Route> + Clone + Send + Sync + 'static,
         T::Service: Service<Request> + Clone + Send + Sync + 'static,
@@ -328,12 +328,12 @@ impl WebhookServer {
         <T::Service as Service<Request>>::Error: Into<Infallible> + 'static,
         <T::Service as Service<Request>>::Future: Send + 'static,
     {
-        match self.router {
-            Some(r) => {
-                self.router = Some(r.layer(layer));
-                Ok(())
-            }
-            None => Err(anyhow::anyhow!("Cannot add layer to empty router")),
+        if let Some(router) = self.router.take() {
+            let new_router = router.layer(layer);
+            self.router = Some(new_router);
+            Ok(())
+        } else {
+            Err(anyhow::anyhow!("Router not initialized"))
         }
     }
 

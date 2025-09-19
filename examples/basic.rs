@@ -27,6 +27,7 @@ async fn main() -> Result<()> {
         Octofer::new_default()
     });
 
+    // Before starting the app, add a new middleware, if necessary
     let cors_layer = tower_http::cors::CorsLayer::new()
         .allow_origin(tower_http::cors::Any)
         .allow_methods(tower_http::cors::Any)
@@ -34,6 +35,7 @@ async fn main() -> Result<()> {
 
     app.server.add_middleware(cors_layer)?;
 
+    // Some data structure we want to make available to the event handlers
     #[derive(Clone, Debug)]
     struct Hello {
         a: String,
@@ -41,6 +43,7 @@ async fn main() -> Result<()> {
 
     let h = Hello { a: "Hello".into() };
 
+    // Event handlers want the ds to be an Arc<Hello>
     app.on_issue_comment(
         |context, e| async move {
             info!("Issue comment event received!");
@@ -49,7 +52,7 @@ async fn main() -> Result<()> {
 
             info!("Extra: {:?}", e.a);
 
-            let client = match context.github_client {
+            let _ = match context.github_client {
                 Some(c) => c,
                 None => panic!(),
             };
@@ -59,6 +62,7 @@ async fn main() -> Result<()> {
         Arc::new(h),
     )
     .await;
+
     // Start the application
     app.start().await?;
 
