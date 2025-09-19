@@ -4,10 +4,14 @@
 //! It handles HMAC verification, event processing, and routing to registered handlers.
 
 use anyhow::Result;
-use axum::routing::{get, post};
+use axum::extract::Request;
+use axum::response::IntoResponse;
+use axum::routing::{get, post, Route};
 use axum::{middleware, Router};
+use std::convert::Infallible;
 use std::{collections::HashMap, net::Ipv4Addr, sync::Arc};
 use tokio::sync::RwLock;
+use tower::{Layer, Service};
 use tower_http::trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer};
 use tracing::{info, Level};
 
@@ -90,8 +94,8 @@ pub struct WebhookServer {
     pub host: Ipv4Addr,
     /// Server port to listen on
     pub port: u16,
-    /// HMAC configuration for webhook verification
-    hmac_config: Arc<HmacConfig>,
+    /// Axum router
+    router: Option<Router>,
 }
 
 impl Default for WebhookServer {
@@ -155,13 +159,14 @@ impl WebhookServer {
             github_client: Some(github_client),
         };
 
-        let hmac_config = Arc::new(HmacConfig::new(secret.into(), hmac_header.into()));
+        let hmac_config = HmacConfig::new(secret.into(), hmac_header.into());
+        let router = create_router(state.clone(), hmac_config);
 
         Ok(Self {
             state,
             host,
             port,
-            hmac_config,
+            router: Some(router),
         })
     }
 
@@ -192,13 +197,13 @@ impl WebhookServer {
             github_client: None,
         };
 
-        let hmac_config = Arc::new(HmacConfig::default());
+        let router = create_router(state.clone(), HmacConfig::default());
 
         Self {
             state,
             host: DEFAULT_HOST_ADDR,
             port: DEFAULT_PORT,
-            hmac_config,
+            router: Some(router),
         }
     }
 
@@ -233,7 +238,12 @@ impl WebhookServer {
         let listener = tokio::net::TcpListener::bind((self.host, self.port)).await?;
         info!("Webhook server started on {}:{}", self.host, self.port);
 
-        axum::serve(listener, self.create_router()).await?;
+        let router = self
+            .router
+            .clone()
+            .ok_or(anyhow::anyhow!("Cannot initialize router"))?;
+
+        axum::serve(listener, router).await?;
         Ok(())
     }
 
@@ -310,52 +320,21 @@ impl WebhookServer {
             .push(boxed_handler);
     }
 
-    /// Create the axum router with all routes and middleware
-    ///
-    /// Creates the HTTP router with all endpoints and middleware layers.
-    /// This is an internal method used by `start()`.
-    ///
-    /// # Middleware Stack
-    ///
-    /// The router includes the following middleware (in order):
-    /// 1. **CORS** - Allows cross-origin requests
-    /// 2. **Tracing** - Logs all requests and responses
-    /// 3. **GitHub Event Processing** - Extracts GitHub event metadata
-    /// 4. **HMAC Verification** - Validates webhook authenticity (webhook endpoint only)
-    ///
-    /// # Endpoints
-    ///
-    /// - `GET /health` - Health check endpoint (no authentication required)
-    /// - `POST /webhook` - Webhook endpoint (requires valid HMAC signature)
-    fn create_router(&self) -> Router {
-        let cors_layer = tower_http::cors::CorsLayer::new()
-            .allow_origin(tower_http::cors::Any)
-            .allow_methods(tower_http::cors::Any)
-            .allow_headers(tower_http::cors::Any);
-
-        let trace_layer = TraceLayer::new_for_http()
-            .make_span_with(DefaultMakeSpan::new().include_headers(true))
-            .on_request(DefaultOnRequest::new().level(Level::INFO))
-            .on_response(
-                DefaultOnResponse::new()
-                    .level(Level::INFO)
-                    .latency_unit(tower_http::LatencyUnit::Micros),
-            );
-
-        Router::new()
-            .route("/health", get(handlers::handle_health))
-            .route(
-                "/webhook",
-                post(handlers::handle_webhook)
-                    .layer(middleware::from_fn_with_state(
-                        self.hmac_config.clone(),
-                        verify_hmac_middleware,
-                    ))
-                    .layer(middleware::from_fn(github_event_middleware)),
-            )
-            .layer(trace_layer)
-            .layer(cors_layer)
-            .with_state(self.state.clone())
+    pub fn add_middleware<T>(&mut self, layer: T) -> Result<()>
+    where
+        T: Layer<Route> + Clone + Send + Sync + 'static,
+        T::Service: Service<Request> + Clone + Send + Sync + 'static,
+        <T::Service as Service<Request>>::Response: IntoResponse + 'static,
+        <T::Service as Service<Request>>::Error: Into<Infallible> + 'static,
+        <T::Service as Service<Request>>::Future: Send + 'static,
+    {
+        if let Some(router) = self.router.take() {
+            let new_router = router.layer(layer);
+            self.router = Some(new_router);
+            Ok(())
+        } else {
+            Err(anyhow::anyhow!("Router not initialized"))
+        }
     }
 
     /// Get access to the GitHub client
@@ -395,32 +374,52 @@ impl WebhookServer {
     pub fn github_client(&self) -> Option<&Arc<GitHubClient>> {
         self.state.github_client.as_ref()
     }
+}
 
-    /// Update HMAC configuration
-    ///
-    /// Updates the HMAC configuration used for webhook verification.
-    /// This can be useful for rotating webhook secrets or changing
-    /// verification settings.
-    ///
-    /// # Arguments
-    ///
-    /// * `config` - New HMAC configuration
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// use octofer::{webhook::WebhookServer, github::middlewares::HmacConfig};
-    ///
-    /// let mut server = WebhookServer::new_default();
-    ///
-    /// // Update to a new webhook secret
-    /// let new_config = HmacConfig::new(
-    ///     "new-secure-secret".to_string(),
-    ///     "X-Hub-Signature-256".to_string(),
-    /// );
-    /// server.set_hmac_config(new_config);
-    /// ```
-    pub fn set_hmac_config(&mut self, config: HmacConfig) {
-        self.hmac_config = Arc::new(config);
-    }
+/// Create the axum router with all routes and middleware
+///
+/// Creates the HTTP router with all endpoints and middleware layers.
+/// This is an internal method used by `start()`.
+///
+/// # Middleware Stack
+///
+/// The router includes the following middleware (in order):
+/// 1. **CORS** - Allows cross-origin requests
+/// 2. **Tracing** - Logs all requests and responses
+/// 3. **GitHub Event Processing** - Extracts GitHub event metadata
+/// 4. **HMAC Verification** - Validates webhook authenticity (webhook endpoint only)
+///
+/// # Endpoints
+///
+/// - `GET /health` - Health check endpoint (no authentication required)
+/// - `POST /webhook` - Webhook endpoint (requires valid HMAC signature)
+fn create_router(state: AppState, hmac_config: HmacConfig) -> Router {
+    let cors_layer = tower_http::cors::CorsLayer::new()
+        .allow_origin(tower_http::cors::Any)
+        .allow_methods(tower_http::cors::Any)
+        .allow_headers(tower_http::cors::Any);
+
+    let trace_layer = TraceLayer::new_for_http()
+        .make_span_with(DefaultMakeSpan::new().include_headers(true))
+        .on_request(DefaultOnRequest::new().level(Level::INFO))
+        .on_response(
+            DefaultOnResponse::new()
+                .level(Level::INFO)
+                .latency_unit(tower_http::LatencyUnit::Micros),
+        );
+
+    Router::new()
+        .route("/health", get(handlers::handle_health))
+        .route(
+            "/webhook",
+            post(handlers::handle_webhook)
+                .layer(middleware::from_fn_with_state(
+                    hmac_config,
+                    verify_hmac_middleware,
+                ))
+                .layer(middleware::from_fn(github_event_middleware)),
+        )
+        .layer(trace_layer)
+        .layer(cors_layer)
+        .with_state(state)
 }

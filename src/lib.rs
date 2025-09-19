@@ -264,7 +264,7 @@ impl SerdeToString for WebhookEventType {
 #[derive(Default)]
 pub struct Octofer {
     /// The underlying webhook server
-    server: WebhookServer,
+    pub server: WebhookServer,
     /// Application configuration
     config: Config,
 }

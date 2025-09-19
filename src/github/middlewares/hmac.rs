@@ -10,7 +10,6 @@ use axum::{
     response::Response,
 };
 use hmac::Mac;
-use std::sync::Arc;
 use tracing::debug;
 
 type HmacSha256 = hmac::Hmac<sha2::Sha256>;
@@ -45,7 +44,7 @@ impl HmacConfig {
 
 /// Middleware to verify HMAC signatures on incoming webhook requests
 pub async fn verify_hmac_middleware(
-    State(config): State<Arc<HmacConfig>>,
+    State(config): State<HmacConfig>,
     req: Request,
     next: Next,
 ) -> Result<Response, StatusCode> {
