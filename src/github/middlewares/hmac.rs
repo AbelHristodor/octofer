@@ -45,7 +45,7 @@ impl HmacConfig {
 
 /// Middleware to verify HMAC signatures on incoming webhook requests
 pub async fn verify_hmac_middleware(
-    State(config): State<Arc<HmacConfig>>,
+    State(config): State<HmacConfig>,
     req: Request,
     next: Next,
 ) -> Result<Response, StatusCode> {

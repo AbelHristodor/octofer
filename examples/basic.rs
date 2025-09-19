@@ -27,6 +27,13 @@ async fn main() -> Result<()> {
         Octofer::new_default()
     });
 
+    let cors_layer = tower_http::cors::CorsLayer::new()
+        .allow_origin(tower_http::cors::Any)
+        .allow_methods(tower_http::cors::Any)
+        .allow_headers(tower_http::cors::Any);
+
+    app.server.add_middleware(cors_layer)?;
+
     #[derive(Clone, Debug)]
     struct Hello {
         a: String,
