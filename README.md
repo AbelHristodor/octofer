@@ -1,8 +1,10 @@
-# Octofer
-
 <p align="center">
-  <img src=".github/assets/logo.PNG" alt="Octofer Logo" width="200">
+  <a href="#"><img src=".github/assets/logo.PNG" width="160" alt="Octofer's logo" /></a>
 </p>
+<h3 align="center"><a href="#">Octofer</a></h3>
+<p align="center">A framework for building GitHub Apps, in Rust </p>
+
+---
 
 > ⚠️ **Under Development** - This framework is currently in active development and not yet ready for production use.
 
@@ -167,4 +169,3 @@ The repository includes several examples:
 ## License
 
 MIT
-
