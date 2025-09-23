@@ -1,0 +1,169 @@
+name: Documentation
+description: Improvements or fixes needed for documentation
+title: "[Docs]: "
+labels: ["documentation"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help improve Octofer's documentation! Report missing, unclear, or incorrect documentation.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation issue is this?
+      options:
+        - README improvements
+        - API documentation
+        - Command reference
+        - Installation/setup guide
+        - Configuration documentation
+        - Troubleshooting guide
+        - Examples/tutorials
+        - Code comments
+        - Architecture documentation
+        - Contributing guidelines
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What kind of documentation issue is this?
+      options:
+        - Missing documentation
+        - Incorrect/outdated information
+        - Unclear/confusing content
+        - Typo/grammatical error
+        - Broken link
+        - Missing examples
+        - Formatting issue
+        - Translation needed
+        - New documentation needed
+    validations:
+      required: true
+
+  - type: input
+    id: affected-file
+    attributes:
+      label: Affected File/Section
+      description: Which file or section needs attention?
+      placeholder: "README.md, PERMISSIONS.md, src/lib.rs, etc."
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: Current Content
+      description: What does the current documentation say? (Copy/paste if applicable)
+      placeholder: Paste the current content that needs improvement...
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue Description
+      description: What's wrong with the current documentation?
+      placeholder: |
+        - Information is missing about...
+        - The explanation of X is unclear because...
+        - This example doesn't work because...
+        - The link to Y is broken...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-improvement
+    attributes:
+      label: Suggested Improvement
+      description: How should the documentation be improved?
+      placeholder: |
+        Describe your suggested changes or provide improved content...
+
+        For typos/grammar: provide the corrected text
+        For missing content: describe what should be added
+        For clarity: explain how it could be clearer
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: improvement-areas
+    attributes:
+      label: Improvement Areas
+      description: What aspects need improvement? (Select all that apply)
+      options:
+        - label: Clarity and readability
+        - label: Technical accuracy
+        - label: Completeness of information
+        - label: Code examples
+        - label: Visual aids (diagrams, screenshots)
+        - label: Cross-references and links
+        - label: Organization and structure
+        - label: Grammar and spelling
+        - label: Accessibility
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case/Context
+      description: In what situation did you encounter this documentation issue?
+      placeholder: |
+        - I was trying to...
+        - As a new user, I expected to find...
+        - When configuring X, I couldn't understand...
+
+  - type: textarea
+    id: related-docs
+    attributes:
+      label: Related Documentation
+      description: Are there other documentation sections that should be updated together?
+      placeholder: List any related files or sections that might need similar updates...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this documentation improvement?
+      options:
+        - Low - Minor improvement
+        - Medium - Would help users significantly
+        - High - Critical for user success
+        - Urgent - Blocking users or incorrect information
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other information that would help improve the documentation.
+      placeholder: |
+        - Screenshots of current issues
+        - User feedback you've received
+        - Common questions from users
+        - Related GitHub issues
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution Interest
+      options:
+        - label: I would be willing to help write or improve this documentation
+        - label: I can provide technical review of documentation changes
+        - label: I can test documentation changes with new users
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have clearly described the documentation problem and suggested improvement
+          required: true
+        - label: I have considered the target audience for this documentation
+          required: true
+
