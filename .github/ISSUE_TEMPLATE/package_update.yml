@@ -1,0 +1,106 @@
+name: Package Update
+description: Request an update to dependencies or packages
+title: "[Package]: Update "
+labels: ["dependencies", "maintenance"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Request updates to Rust crates, GitHub Actions, or other dependencies used by Octofer.
+
+  - type: dropdown
+    id: update-type
+    attributes:
+      label: Update Type
+      description: What type of package update is this?
+      options:
+        - Rust crate dependency
+        - GitHub Actions workflow
+        - Development tool
+        - CI/CD dependency
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: package-name
+    attributes:
+      label: Package Name
+      description: The name of the package/crate to update
+      placeholder: "tokio, octocrab, axum, etc."
+    validations:
+      required: true
+
+  - type: input
+    id: current-version
+    attributes:
+      label: Current Version
+      description: The current version being used
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: target-version
+    attributes:
+      label: Target Version
+      description: The version you want to update to
+      placeholder: "1.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: update-priority
+    attributes:
+      label: Update Priority
+      description: How urgent is this update?
+      options:
+        - Low - Routine maintenance
+        - Medium - Bug fixes or improvements
+        - High - Security fix or critical bug
+        - Critical - Security vulnerability
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why should this package be updated?
+      placeholder: |
+        - Security vulnerability fixes
+        - Performance improvements
+        - New features needed
+        - Bug fixes
+        - Breaking changes that need addressing
+    validations:
+      required: true
+
+  - type: textarea
+    id: breaking-changes
+    attributes:
+      label: Breaking Changes
+      description: Are there any known breaking changes in the target version?
+      placeholder: List any breaking changes or migration requirements...
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information about this update.
+      placeholder: Related issues, dependency conflicts, etc.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have checked if there are any security advisories for the current version
+          required: true
+        - label: I have reviewed the changelog/release notes for the target version
+          required: true
+        - label: I have considered the impact on Frezze's functionality
+          required: true
+
