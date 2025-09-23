@@ -26,6 +26,9 @@ Octofer simplifies GitHub App development by:
 - **Providing type safety** - Full Rust type safety for GitHub API interactions
 - **Offering simple APIs** - Clean, intuitive event handler registration
 
+> 🛠️ Looking for a **full production-ready** example? Check out [AbelHristodor/frezze](https://github.com/AbelHristodor/frezze)! A bot that you
+can use to schedule "freeze" periods for your repo, blocking all PR merges for specific periods of time!
+
 ## Available Event Handlers
 
 Currently supported GitHub webhook events:
