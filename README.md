@@ -32,14 +32,96 @@ Otherwise check the `examples` directory.
 
 ## Available Event Handlers
 
-Currently supported GitHub webhook events:
+GitHub webhook events supported by Octofer:
 
-- `on_issue_comment()` - Issue comment events (created, edited, deleted)
+### Issues & Pull Requests
 - `on_issue()` - Issue events (opened, closed, edited, etc.)
+- `on_issue_comment()` - Issue comment events (created, edited, deleted)
 - `on_pull_request()` - Pull request events (opened, closed, merged, etc.)
 - `on_pull_request_review()` - Pull request review events
 - `on_pull_request_review_comment()` - Pull request review comment events
 - `on_pull_request_review_thread()` - Pull request review thread events
+
+### Repository & Git
+- `on_push()` - Push events
+- `on_create()` - Branch/tag created
+- `on_delete()` - Branch/tag deleted
+- `on_fork()` - Repository forked
+- `on_commit_comment()` - Comment on commit
+- `on_gollum()` - Wiki page update
+- `on_public()` - Repository made public
+- `on_repository()` - Repository events
+- `on_repository_dispatch()` - Repository dispatch
+- `on_repository_import()` - Repository import
+- `on_branch_protection_rule()` - Branch protection rule events
+
+### Workflows & Actions
+- `on_workflow_run()` - Workflow run events
+- `on_workflow_job()` - Workflow job events
+- `on_workflow_dispatch()` - Workflow dispatch events
+- `on_status()` - Commit status events
+
+### Checks & Security
+- `on_check_run()` - Check run events
+- `on_check_suite()` - Check suite events
+- `on_code_scanning_alert()` - Code scanning alerts
+- `on_secret_scanning_alert()` - Secret scanning alerts
+- `on_secret_scanning_alert_location()` - Secret scanning alert location
+- `on_dependabot_alert()` - Dependabot alerts
+- `on_repository_vulnerability_alert()` - Repository vulnerability alerts
+- `on_security_advisory()` - Security advisory events
+- `on_repository_advisory()` - Repository advisory events
+- `on_security_and_analysis()` - Security and analysis events
+
+### Deployments
+- `on_deployment()` - Deployment events
+- `on_deployment_status()` - Deployment status events
+- `on_deploy_key()` - Deploy key events
+- `on_deployment_protection_rule()` - Deployment protection rule events
+
+### Discussions
+- `on_discussion()` - Discussion events
+- `on_discussion_comment()` - Discussion comment events
+
+### Projects
+- `on_project()` - Project (classic) events
+- `on_project_card()` - Project card events
+- `on_project_column()` - Project column events
+- `on_projects_v2()` - Projects v2 events
+- `on_projects_v2_item()` - Projects v2 item events
+
+### Teams & Organizations
+- `on_team()` - Team events
+- `on_team_add()` - Team add events
+- `on_member()` - Member events
+- `on_membership()` - Membership events
+- `on_organization()` - Organization events
+- `on_org_block()` - Org block events
+
+### Releases & Packages
+- `on_release()` - Release events
+- `on_package()` - Package events
+- `on_registry_package()` - Registry package events
+
+### Installations & Apps
+- `on_installation()` - Installation events
+- `on_installation_repositories()` - Installation repositories events
+- `on_installation_target()` - Installation target events
+- `on_github_app_authorization()` - GitHub App authorization events
+- `on_personal_access_token_request()` - Personal access token request events
+
+### Miscellaneous
+- `on_label()` - Label events
+- `on_milestone()` - Milestone events
+- `on_watch()` - Watch (star) events
+- `on_star()` - Star events
+- `on_ping()` - Ping events
+- `on_meta()` - Meta events
+- `on_page_build()` - Page build events
+- `on_schedule()` - Schedule events
+- `on_sponsorship()` - Sponsorship events
+- `on_marketplace_purchase()` - Marketplace purchase events
+- `on_merge_group()` - Merge group events
 
 ## Quick Example
 
