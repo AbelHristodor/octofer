@@ -15,9 +15,17 @@
 //!
 //! ## Supported Events
 //!
-//! - **Issues**: `on_issue()`, `on_issue_comment()`
-//! - **Pull Requests**: `on_pull_request()`, `on_pull_request_review()`,
-//!   `on_pull_request_review_comment()`, `on_pull_request_review_thread()`
+//! Octofer supports all major GitHub webhook events:
+//!
+//! - **Issues & PRs**: `on_issue()`, `on_issue_comment()`, `on_pull_request()`, 
+//!   `on_pull_request_review()`, `on_pull_request_review_comment()`, `on_pull_request_review_thread()`
+//! - **Repository**: `on_push()`, `on_create()`, `on_delete()`, `on_fork()`, `on_repository()`, etc.
+//! - **Workflows**: `on_workflow_run()`, `on_workflow_job()`, `on_workflow_dispatch()`, `on_status()`
+//! - **Security**: `on_code_scanning_alert()`, `on_secret_scanning_alert()`, `on_dependabot_alert()`, etc.
+//! - **Deployments**: `on_deployment()`, `on_deployment_status()`, `on_deploy_key()`
+//! - **Projects**: `on_project()`, `on_projects_v2()`, `on_projects_v2_item()`
+//! - **Teams**: `on_team()`, `on_member()`, `on_organization()`
+//! - **And many more** - See [`events`] module for complete list
 //!
 //! ## Quick Start
 //!
