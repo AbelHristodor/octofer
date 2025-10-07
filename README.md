@@ -13,7 +13,7 @@
 
 ---
 
-> ⚠️ **Under Development** - This framework is currently in active development and not yet ready for production use.
+> ⚠️ **Under Development** - This framework is currently in active development and may have bugs and issues.
 
 A framework for building GitHub Apps in Rust, inspired by [Probot](https://github.com/probot/probot). Octofer provides a clean, type-safe way to build GitHub Apps with minimal boilerplate and automatic webhook handling.
 
@@ -28,6 +28,7 @@ Octofer simplifies GitHub App development by:
 
 > 🛠️ Looking for a **full production-ready** example? Check out [AbelHristodor/frezze](https://github.com/AbelHristodor/frezze)! A bot that you
 can use to schedule "freeze" periods for your repo, blocking all PR merges for specific periods of time!
+Otherwise check the `examples` directory.
 
 ## Available Event Handlers
 

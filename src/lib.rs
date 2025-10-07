@@ -164,6 +164,7 @@ pub mod webhook;
 
 pub use config::Config;
 pub use core::Context;
+pub use octocrab;
 
 use octocrab::models::webhook_events::WebhookEventType;
 use serde::Serialize;
