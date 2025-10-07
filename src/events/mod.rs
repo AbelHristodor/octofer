@@ -203,15 +203,15 @@
 //! # }
 //! ```
 
-mod checks;
-mod deployments;
-mod discussions;
-mod installations;
-mod issues;
-mod misc;
-mod projects;
-mod prs;
-mod releases;
-mod repository;
-mod teams;
-mod workflows;
+pub mod checks;
+pub mod deployments;
+pub mod discussions;
+pub mod installations;
+pub mod issues;
+pub mod misc;
+pub mod projects;
+pub mod prs;
+pub mod releases;
+pub mod repository;
+pub mod teams;
+pub mod workflows;
